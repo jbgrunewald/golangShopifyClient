@@ -28,7 +28,7 @@ Before we get started, here are a few things we expect from you (and that you sh
 
 ## How to contribute
 
-If you'd like to contribute, start by searching through the [issues](https://github.com/jbgrunewald/shopifyApi/issues) and [pull requests](https://github.com/jbgrunewald/shopifyApi/pulls) to see whether someone else has raised a similar idea or question.
+If you'd like to contribute, start by searching through the [issues](https://github.com/jbgrunewald/golangShopifyClient/issues) and [pull requests](https://github.com/jbgrunewald/golangShopifyClient/pulls) to see whether someone else has raised a similar idea or question.
 
 If you don't see your idea listed, and you think it fits into the goals of this guide, do one of the following:
 * **If your contribution is minor,** such as a typo fix, open a pull request.
@@ -44,6 +44,7 @@ As of this writing we don't have any other dependencies for the project. It may 
 
 ## Community
 
-Discussions about the Golang Shopify Client take place on this repository's [Issues](https://github.com/jbgrunewald/shopifyApi/issues) and [Pull Requests](https://github.com/jbgrunewald/shopifyApi/pulls) sections. Anybody is welcome to join these conversations. There is also a [mailing list](http://eepurl.com/cecpnT) for regular updates.
+Discussions about the Golang Shopify Client take place on this repository's [Issues](https://github.com/jbgrunewald/golangShopifyClient/issues) and [Pull Requests](https://github.com/jbgrunewald/golangShopifyClient/pulls) sections. Anybody is welcome to join these conversations. There is also a [mailing list](https://mailchi.mp/bcae47addecf/golangshopifyclient
+) for regular updates.
 
 Wherever possible, do not take these conversations to private channels, including contacting the maintainers directly. Keeping communication public means everybody can benefit and learn from the conversation.
