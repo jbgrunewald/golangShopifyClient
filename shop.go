@@ -3,7 +3,6 @@ package shopify
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -63,10 +62,10 @@ type ShopWrapper struct {
 	Shop Shop `json:"shop,omitempty"`
 }
 
-func (client *ShopifyApiImpl) GetShopDetails(details ShopifyRequestDetails) (result Shop, err error) {
+func (c *ShopifyApiImpl) GetShopDetails(details ShopifyRequestDetails) (result Shop, err error) {
 	requestUrl := "https://" + details.ShopName + "/admin/shop.json"
 
-	log.Printf("Requesting the shop details for shop %s using URL %s\n", details.ShopName, requestUrl)
+	c.Logger.Printf("Requesting the shop details for shop %s using URL %s\n", details.ShopName, requestUrl)
 
 	req, err := http.NewRequest("GET", requestUrl, nil)
 	if err != nil {
@@ -75,13 +74,13 @@ func (client *ShopifyApiImpl) GetShopDetails(details ShopifyRequestDetails) (res
 
 	req.Header.Add("X-Shopify-Access-Token", details.AccessToken)
 
-	resp, err := client.Http.Do(req)
+	resp, err := c.Http.Do(req)
 	if err != nil {
 		return
 	}
 
 	buf, _ := ioutil.ReadAll(resp.Body)
-	log.Println("This is the response for the shopify details: ", string(buf))
+	c.Logger.Println("This is the response for the shopify details: ", string(buf))
 	wrapper := ShopWrapper{}
 	err = json.Unmarshal(buf, &wrapper)
 	if err != nil {

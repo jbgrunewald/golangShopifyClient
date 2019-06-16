@@ -2,6 +2,7 @@ package shopify
 
 import (
 	"context"
+	"log"
 	"net/http"
 )
 
@@ -19,6 +20,8 @@ type ShopifyClient interface {
 
 type ShopifyApiImpl struct {
 	Http *http.Client
+	Logger log.Logger
+	Version string
 }
 
 type ShopifyRequestDetails struct {

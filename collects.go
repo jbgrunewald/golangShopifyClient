@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/google/go-querystring/query"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -32,12 +31,12 @@ type CollectRequestOptions struct {
 	All          bool
 }
 
-func (client *ShopifyApiImpl) GetCollects(details ShopifyRequestDetails, options CollectRequestOptions) (result []Collect, err error) {
+func (c *ShopifyApiImpl) GetCollects(details ShopifyRequestDetails, options CollectRequestOptions) (result []Collect, err error) {
 	v, err := query.Values(options)
 	requestUrl := "https://" + details.ShopName + "/admin/api/2019-04/collects.json?" + v.Encode()
-	log.Println("This is the request url for the collects", requestUrl)
+	c.Logger.Println("This is the request url for the collects", requestUrl)
 
-	log.Printf("Requesting collects for shop %s using options %v\n", details.ShopName, options)
+	c.Logger.Printf("Requesting collects for shop %s using options %v\n", details.ShopName, options)
 
 	req, err := http.NewRequest("GET", requestUrl, nil)
 	if err != nil {
@@ -46,13 +45,13 @@ func (client *ShopifyApiImpl) GetCollects(details ShopifyRequestDetails, options
 
 	req.Header.Add("X-Shopify-Access-Token", details.AccessToken)
 
-	resp, err := client.Http.Do(req)
+	resp, err := c.Http.Do(req)
 	if err != nil {
 		return
 	}
 
 	buf, _ := ioutil.ReadAll(resp.Body)
-	log.Println("This is the response from the request for the collects: ", string(buf))
+	c.Logger.Println("This is the response from the request for the collects: ", string(buf))
 	wrapper := CollectWrapper{}
 	err = json.Unmarshal(buf, &wrapper)
 	if err != nil {
@@ -66,7 +65,7 @@ func (client *ShopifyApiImpl) GetCollects(details ShopifyRequestDetails, options
 	}
 
 	options.SinceId = result[len(result)-1].Id
-	nextResult, err := client.GetCollects(details, options)
+	nextResult, err := c.GetCollects(details, options)
 
 	result = append(result, nextResult...)
 

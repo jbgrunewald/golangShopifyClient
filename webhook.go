@@ -6,7 +6,6 @@ import (
 	"errors"
 	"github.com/google/go-querystring/query"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -52,10 +51,10 @@ type WebHookRequestOptions struct {
 	UpdatedAtMax string   `url:"updated_at_max,omitempty"`
 }
 
-func (client *ShopifyApiImpl) CreateWebhook(details ShopifyRequestDetails, request Webhook) (result Webhook, err error) {
+func (c *ShopifyApiImpl) CreateWebhook(details ShopifyRequestDetails, request Webhook) (result Webhook, err error) {
 	requestUrl := "https://" + details.ShopName + "/admin/webhooks.json"
 
-	log.Printf("Requesting to create webhook for topic %s for shop %s with URL %s", request.Topic, details.ShopName, requestUrl)
+	c.Logger.Printf("Requesting to create webhook for topic %s for shop %s with URL %s", request.Topic, details.ShopName, requestUrl)
 
 	requestStr, err := json.Marshal(WebhookWrapper{request})
 	if err != nil {
@@ -71,14 +70,14 @@ func (client *ShopifyApiImpl) CreateWebhook(details ShopifyRequestDetails, reque
 	req.Header.Add("X-Shopify-Access-Token", details.AccessToken)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := client.Http.Do(req)
+	resp, err := c.Http.Do(req)
 	defer resp.Body.Close()
 	if err != nil {
 		return
 	}
 
 	buf, err := ioutil.ReadAll(resp.Body)
-	log.Println("This is the response from the webhook create request: ", string(buf))
+	c.Logger.Println("This is the response from the webhook create request: ", string(buf))
 	wrapper := WebhookWrapper{}
 	if err != nil {
 		return
@@ -104,10 +103,10 @@ func (client *ShopifyApiImpl) CreateWebhook(details ShopifyRequestDetails, reque
 	return
 }
 
-func (client *ShopifyApiImpl) DeleteWebhook(details ShopifyRequestDetails, request Webhook) (err error) {
+func (c *ShopifyApiImpl) DeleteWebhook(details ShopifyRequestDetails, request Webhook) (err error) {
 	requestUrl := "https://" + details.ShopName + "/admin/api/2019-04/webhooks/" + string(request.Id) + ".json"
 
-	log.Printf("Requesting to delete webhook for topic %s for shop %s with URL %s", request.Topic, details.ShopName, requestUrl)
+	c.Logger.Printf("Requesting to delete webhook for topic %s for shop %s with URL %s", request.Topic, details.ShopName, requestUrl)
 
 	req, err := http.NewRequest("DELETE", requestUrl, nil)
 	if err != nil {
@@ -117,14 +116,14 @@ func (client *ShopifyApiImpl) DeleteWebhook(details ShopifyRequestDetails, reque
 	req.WithContext(details.Ctx)
 	req.Header.Add("X-Shopify-Access-Token", details.AccessToken)
 
-	resp, err := client.Http.Do(req)
+	resp, err := c.Http.Do(req)
 	defer resp.Body.Close()
 	if err != nil {
 		return
 	}
 
 	buf, err := ioutil.ReadAll(resp.Body)
-	log.Println("This is the response from the webhook delete request: ", string(buf))
+	c.Logger.Println("This is the response from the webhook delete request: ", string(buf))
 	if err != nil {
 		return
 	}
@@ -132,14 +131,14 @@ func (client *ShopifyApiImpl) DeleteWebhook(details ShopifyRequestDetails, reque
 	return
 }
 
-func (client ShopifyApiImpl) GetWebhooks(details ShopifyRequestDetails, options WebHookRequestOptions) (webhooks []Webhook, err error) {
+func (c *ShopifyApiImpl) GetWebhooks(details ShopifyRequestDetails, options WebHookRequestOptions) (webhooks []Webhook, err error) {
 	v, err := query.Values(options)
 	if err != nil {
-		log.Println("there's an issue setting up the query params in the get webhooks request")
+		c.Logger.Println("there's an issue setting up the query params in the get webhooks request")
 		return
 	}
 	requestUrl := "https://" + details.ShopName + "/admin/api/2019-04/webhooks.json?" + v.Encode()
-	log.Println(requestUrl)
+	c.Logger.Println(requestUrl)
 
 	req, err := http.NewRequest("GET", requestUrl, nil)
 	if err != nil {
@@ -148,13 +147,13 @@ func (client ShopifyApiImpl) GetWebhooks(details ShopifyRequestDetails, options 
 
 	req.Header.Add("X-Shopify-Access-Token", details.AccessToken)
 
-	resp, err := client.Http.Do(req)
+	resp, err := c.Http.Do(req)
 	if err != nil {
 		return
 	}
 
 	buf, _ := ioutil.ReadAll(resp.Body)
-	log.Println("This is the response for the webhooks: ", string(buf))
+	c.Logger.Println("This is the response for the webhooks: ", string(buf))
 	wrapper := WebhooksWrapper{}
 
 	err = json.Unmarshal(buf, &wrapper)
@@ -174,7 +173,7 @@ func (client ShopifyApiImpl) GetWebhooks(details ShopifyRequestDetails, options 
 	}
 
 	options.SinceId = webhooks[len(webhooks)-1].Id
-	nextResult, err := client.GetWebhooks(details, options)
+	nextResult, err := c.GetWebhooks(details, options)
 
 	webhooks = append(webhooks, nextResult...)
 

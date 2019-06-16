@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/google/go-querystring/query"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -73,14 +72,14 @@ type ProductRequestOptions struct {
 	All                   bool
 }
 
-func (client ShopifyApiImpl) GetProducts(details ShopifyRequestDetails, options ProductRequestOptions) (products []Product, err error) {
+func (c *ShopifyApiImpl) GetProducts(details ShopifyRequestDetails, options ProductRequestOptions) (products []Product, err error) {
 	v, err := query.Values(options)
 	if err != nil {
-		log.Println("there's an issue setting up the query params")
+		c.Logger.Println("there's an issue setting up the query params")
 		return
 	}
 	requestUrl := "https://" + details.ShopName + "/admin/products.json?" + v.Encode()
-	log.Println(requestUrl)
+	c.Logger.Println(requestUrl)
 
 	req, err := http.NewRequest("GET", requestUrl, nil)
 	if err != nil {
@@ -89,13 +88,13 @@ func (client ShopifyApiImpl) GetProducts(details ShopifyRequestDetails, options 
 
 	req.Header.Add("X-Shopify-Access-Token", details.AccessToken)
 
-	resp, err := client.Http.Do(req)
+	resp, err := c.Http.Do(req)
 	if err != nil {
 		return
 	}
 
 	buf, _ := ioutil.ReadAll(resp.Body)
-	log.Println("This is the response for the products: ", string(buf))
+	c.Logger.Println("This is the response for the products: ", string(buf))
 	wrapper := ProductWrapper{}
 	err = json.Unmarshal(buf, &wrapper)
 	if err != nil {
@@ -109,7 +108,7 @@ func (client ShopifyApiImpl) GetProducts(details ShopifyRequestDetails, options 
 	}
 
 	options.SinceId = products[len(products)-1].Id
-	nextResult, err := client.GetProducts(details, options)
+	nextResult, err := c.GetProducts(details, options)
 
 	products = append(products, nextResult...)
 
