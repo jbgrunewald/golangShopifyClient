@@ -22,9 +22,9 @@ type RecurringApplicationCharge struct {
 }
 
 type RecurringApplicationChargeOptons struct {
-	SinceId int `json:"since_id"`
-	Fields string `json:"fields"`
-	All bool
+	SinceId int    `json:"since_id, omitempty"`
+	Fields  string `json:"fields, omitempty"`
+	All     bool
 }
 
 type RecurringApplicationChargeWrapper struct {

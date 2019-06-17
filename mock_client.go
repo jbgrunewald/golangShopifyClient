@@ -5,14 +5,14 @@ import (
 )
 
 type ShopifyTestImpl struct {
-	fakeOAuthResponses           map[string]OAuthResponse
-	fakeShopResponses            map[string]Shop
-	fakeBillingSetupResponses    map[string]RecurringApplicationCharge
-	fakeBillingActivateResponses map[string]RecurringApplicationCharge
-	fakeCreateWebhookResponses   map[string]Webhook
-	fakeGetWebhookResponse       map[string][]Webhook
-	fakeProductsResponses        map[string][]Product
-	fakeCollectsResponses        map[string][]Collect
+	fakeOAuthResponses              map[string]OAuthResponse
+	fakeShopResponses               map[string]Shop
+	fakeBillingSetupResponses       map[string]RecurringApplicationCharge
+	fakeBillingActivateResponses    map[string]RecurringApplicationCharge
+	fakeCreateWebhookResponses      map[string]Webhook
+	fakeGetWebhookResponse          map[string][]Webhook
+	fakeProductsResponses           map[string][]Product
+	fakeCollectsResponses           map[string][]Collect
 	fakeRecurringApplicationCharges map[string][]RecurringApplicationCharge
 }
 
@@ -116,8 +116,6 @@ func (client *ShopifyTestImpl) GetRecurringApplicationCharges(details ShopifyReq
 	return
 }
 
-
-
 func (client *ShopifyTestImpl) RegisterOAuthResponse(shopName string, response OAuthResponse) {
 	client.fakeOAuthResponses[shopName] = response
 }
@@ -165,4 +163,3 @@ func (client *ShopifyTestImpl) ClearOAuthResponses() {
 func (client *ShopifyTestImpl) ClearWebhookResponse() {
 	client.fakeCreateWebhookResponses = make(map[string]Webhook)
 }
-

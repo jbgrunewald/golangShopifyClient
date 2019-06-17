@@ -16,12 +16,12 @@ type ShopifyClient interface {
 	GetWebhooks(details ShopifyRequestDetails, options WebHookRequestOptions) (webhooks []Webhook, err error)
 	GetProducts(details ShopifyRequestDetails, options ProductRequestOptions) (products []Product, err error)
 	GetCollects(details ShopifyRequestDetails, options CollectRequestOptions) (result []Collect, err error)
-    GetRecurringApplicationCharges(details ShopifyRequestDetails, options RecurringApplicationChargeOptons) (charges []RecurringApplicationCharge, err error)
+	GetRecurringApplicationCharges(details ShopifyRequestDetails, options RecurringApplicationChargeOptons) (charges []RecurringApplicationCharge, err error)
 }
 
 type ShopifyApiImpl struct {
-	Http *http.Client
-	Logger log.Logger
+	Http    *http.Client
+	Logger  log.Logger
 	Version string
 }
 
