@@ -13,6 +13,7 @@ type ShopifyTestImpl struct {
 	fakeGetWebhookResponse       map[string][]Webhook
 	fakeProductsResponses        map[string][]Product
 	fakeCollectsResponses        map[string][]Collect
+	fakeRecurringApplicationCharges map[string][]RecurringApplicationCharge
 }
 
 func NewShopifyTestImp() *ShopifyTestImpl {
@@ -23,11 +24,11 @@ func NewShopifyTestImp() *ShopifyTestImpl {
 	imp.fakeBillingActivateResponses = make(map[string]RecurringApplicationCharge)
 	imp.fakeCreateWebhookResponses = make(map[string]Webhook)
 	imp.fakeProductsResponses = make(map[string][]Product)
+	imp.fakeRecurringApplicationCharges = make(map[string][]RecurringApplicationCharge)
 	return &imp
 }
 
 func (client *ShopifyTestImpl) OAuthRequest(details ShopifyRequestDetails, request OAuthRequest) (result OAuthResponse, err error) {
-
 	result, ok := client.fakeOAuthResponses[details.ShopName]
 	if !ok {
 		err = errors.New("something has gone wrong with oAuth")
@@ -38,7 +39,6 @@ func (client *ShopifyTestImpl) OAuthRequest(details ShopifyRequestDetails, reque
 }
 
 func (client *ShopifyTestImpl) BillingRequest(details ShopifyRequestDetails, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
-
 	result, ok := client.fakeBillingSetupResponses[details.ShopName]
 	if !ok {
 		err = errors.New("something has gone wrong with setting up the billing")
@@ -48,7 +48,6 @@ func (client *ShopifyTestImpl) BillingRequest(details ShopifyRequestDetails, req
 }
 
 func (client *ShopifyTestImpl) ActivateBilling(details ShopifyRequestDetails, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
-
 	result, ok := client.fakeBillingActivateResponses[details.ShopName]
 	if !ok {
 		err = errors.New("something has gone wrong with activate billing")
@@ -108,6 +107,17 @@ func (client *ShopifyTestImpl) GetCollects(details ShopifyRequestDetails, option
 	return
 }
 
+func (client *ShopifyTestImpl) GetRecurringApplicationCharges(details ShopifyRequestDetails, options RecurringApplicationChargeOptons) (result []RecurringApplicationCharge, err error) {
+	result, ok := client.fakeRecurringApplicationCharges[details.ShopName]
+	if !ok {
+		err = errors.New("there was an issue with getting the reccurring application charges")
+	}
+
+	return
+}
+
+
+
 func (client *ShopifyTestImpl) RegisterOAuthResponse(shopName string, response OAuthResponse) {
 	client.fakeOAuthResponses[shopName] = response
 }
@@ -132,6 +142,10 @@ func (client *ShopifyTestImpl) RegisterFakeProductsResponse(shopName string, pro
 	client.fakeProductsResponses[shopName] = products
 }
 
+func (client *ShopifyTestImpl) RegisterFakeRecurringApplicationCharges(shopName string, charges []RecurringApplicationCharge) {
+	client.fakeRecurringApplicationCharges[shopName] = charges
+}
+
 func (client *ShopifyTestImpl) ClearShopResponses() {
 	client.fakeShopResponses = make(map[string]Shop)
 }
@@ -151,3 +165,4 @@ func (client *ShopifyTestImpl) ClearOAuthResponses() {
 func (client *ShopifyTestImpl) ClearWebhookResponse() {
 	client.fakeCreateWebhookResponses = make(map[string]Webhook)
 }
+
