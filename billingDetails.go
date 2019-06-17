@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/google/go-querystring/query"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -20,8 +21,18 @@ type RecurringApplicationCharge struct {
 	TrialDays       int    `json:"trial_days,omitempty"`
 }
 
+type RecurringApplicationChargeOptons struct {
+	SinceId int `json:"since_id"`
+	Fields string `json:"fields"`
+	All bool
+}
+
 type RecurringApplicationChargeWrapper struct {
-	RecurringCharge RecurringApplicationCharge `json:"recurring_application_charge,omitempty"`
+	RecurringApplicationCharges RecurringApplicationCharge `json:"recurring_application_charge,omitempty"`
+}
+
+type RecurringApplicationChargesWrapper struct {
+	RecurringApplicationCharges []RecurringApplicationCharge `json:"recurring_application_charges,omitempty"`
 }
 
 func (c *ShopifyApiImpl) BillingRequest(details ShopifyRequestDetails, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
@@ -64,7 +75,7 @@ func (c *ShopifyApiImpl) BillingRequest(details ShopifyRequestDetails, request R
 	}
 
 	c.Logger.Println("The result of the unmarshaling: ", wrapper)
-	result = wrapper.RecurringCharge
+	result = wrapper.RecurringApplicationCharges
 
 	return
 }
@@ -107,12 +118,55 @@ func (c *ShopifyApiImpl) ActivateBilling(details ShopifyRequestDetails, request 
 		return
 	}
 
-	result = wrapper.RecurringCharge
+	result = wrapper.RecurringApplicationCharges
 
 	if resp.StatusCode != 200 {
 		err = errors.New("Expected status code to be 201")
 		return
 	}
+
+	return
+}
+
+func (c *ShopifyApiImpl) GetRecurringApplicationCharges(details ShopifyRequestDetails, options RecurringApplicationChargeOptons) (charges []RecurringApplicationCharge, err error) {
+	v, err := query.Values(options)
+	if err != nil {
+		c.Logger.Println("there's an issue setting up the query params while request the recurring application charges")
+		return
+	}
+	requestUrl := "https://" + details.ShopName + "/admin/" + c.Version + "recurring_application_charges.json?" + v.Encode()
+	c.Logger.Println(requestUrl)
+
+	req, err := http.NewRequest("GET", requestUrl, nil)
+	if err != nil {
+		return
+	}
+
+	req.Header.Add("X-Shopify-Access-Token", details.AccessToken)
+
+	resp, err := c.Http.Do(req)
+	if err != nil {
+		return
+	}
+
+	buf, _ := ioutil.ReadAll(resp.Body)
+	c.Logger.Println("This is the response for the recurring application charge: ", string(buf))
+	wrapper := RecurringApplicationChargesWrapper{}
+	err = json.Unmarshal(buf, &wrapper)
+	if err != nil {
+		return
+	}
+
+	charges = wrapper.RecurringApplicationCharges
+
+	if len(charges) == 0 || !options.All {
+		return
+	}
+
+	options.SinceId = charges[len(charges)-1].Id
+	nextResult, err := c.GetRecurringApplicationCharges(details, options)
+
+	charges = append(charges, nextResult...)
 
 	return
 }
