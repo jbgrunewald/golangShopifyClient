@@ -35,7 +35,7 @@ type RecurringApplicationChargesWrapper struct {
 	RecurringApplicationCharges []RecurringApplicationCharge `json:"recurring_application_charges,omitempty"`
 }
 
-func (c *ShopifyApiImpl) BillingRequest(details ShopifyRequestDetails, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
+func (c *ShopifyApiImpl) CreateRecurringApplicationCharge(details ShopifyRequestDetails, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
 	requestUrl := "https://" + details.ShopName + "/admin/recurring_application_charges.json"
 
 	c.Logger.Printf("Making the recurring application charge request for shop %s using URL %s\n", details.ShopName, requestUrl, request)

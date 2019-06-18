@@ -14,6 +14,7 @@ type ShopifyTestImpl struct {
 	fakeProductsResponses           map[string][]Product
 	fakeCollectsResponses           map[string][]Collect
 	fakeRecurringApplicationCharges map[string][]RecurringApplicationCharge
+	fakeScriptTag                   map[string]ScriptTag
 }
 
 func NewShopifyTestImp() *ShopifyTestImpl {
@@ -116,6 +117,15 @@ func (client *ShopifyTestImpl) GetRecurringApplicationCharges(details ShopifyReq
 	return
 }
 
+func (c *ShopifyTestImpl) CreateScriptTag(details ShopifyRequestDetails, scriptTag ScriptTag) (result ScriptTag, err error) {
+	result, ok := c.fakeScriptTag[details.ShopName]
+	if !ok {
+		err = errors.New("there was an issue with getting the script tag")
+	}
+
+	return
+}
+
 func (client *ShopifyTestImpl) RegisterOAuthResponse(shopName string, response OAuthResponse) {
 	client.fakeOAuthResponses[shopName] = response
 }
@@ -142,6 +152,10 @@ func (client *ShopifyTestImpl) RegisterFakeProductsResponse(shopName string, pro
 
 func (client *ShopifyTestImpl) RegisterFakeRecurringApplicationCharges(shopName string, charges []RecurringApplicationCharge) {
 	client.fakeRecurringApplicationCharges[shopName] = charges
+}
+
+func (client *ShopifyTestImpl) RegisterFakeScriptTag(shopName string, response ScriptTag) {
+	client.fakeScriptTag[shopName] = response
 }
 
 func (client *ShopifyTestImpl) ClearShopResponses() {

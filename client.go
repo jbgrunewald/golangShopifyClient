@@ -8,7 +8,7 @@ import (
 
 type ShopifyClient interface {
 	OAuthRequest(details ShopifyRequestDetails, request OAuthRequest) (result OAuthResponse, err error)
-	BillingRequest(details ShopifyRequestDetails, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error)
+	CreateRecurringApplicationCharge(details ShopifyRequestDetails, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error)
 	ActivateBilling(details ShopifyRequestDetails, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error)
 	GetShopDetails(details ShopifyRequestDetails) (result Shop, err error)
 	CreateWebhook(details ShopifyRequestDetails, request Webhook) (result Webhook, err error)
@@ -17,6 +17,7 @@ type ShopifyClient interface {
 	GetProducts(details ShopifyRequestDetails, options ProductRequestOptions) (products []Product, err error)
 	GetCollects(details ShopifyRequestDetails, options CollectRequestOptions) (result []Collect, err error)
 	GetRecurringApplicationCharges(details ShopifyRequestDetails, options RecurringApplicationChargeOptons) (charges []RecurringApplicationCharge, err error)
+	CreateScriptTag(details ShopifyRequestDetails, scriptTag ScriptTag) (result ScriptTag, err error)
 }
 
 type ShopifyApiImpl struct {
