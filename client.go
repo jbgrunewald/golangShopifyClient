@@ -22,7 +22,7 @@ type ShopifyClient interface {
 
 type ShopifyApiImpl struct {
 	Http    *http.Client
-	Logger  log.Logger
+	Logger  *log.Logger
 	Version string
 }
 
