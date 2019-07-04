@@ -54,7 +54,7 @@ type ProductWrapper struct {
 type ProductRequestOptions struct {
 	Ids                   []int    `url:"ids,omitempty"`
 	Limit                 int      `url:"limit,omitempty"`
-	SinceId               int      `url:"since_id,omitempty"`
+	SinceId               int      `url:"since_id"`
 	Title                 string   `url:"title,omitempty"`
 	Vendor                string   `url:"vendor,omitempty"`
 	Handle                string   `url:"handle,omitempty"`
@@ -103,7 +103,7 @@ func (c *ShopifyApiImpl) GetProducts(details ShopifyRequestDetails, options Prod
 
 	products = wrapper.Products
 
-	if len(products) < options.Limit || !options.All {
+	if len(products) < options.Limit || !options.All || (options.Limit == 0 && len(products) < 50) {
 		return
 	}
 

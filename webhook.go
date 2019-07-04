@@ -45,7 +45,7 @@ type WebHookRequestOptions struct {
 	CreatedAtMin string   `url:"created_at_min,omitempty"`
 	Fields       []string `url:"fields,omitempty"`
 	Limit        int      `url:"limit,omitempty"`
-	SinceId      int      `url:"since_id,omitempty"`
+	SinceId      int      `url:"since_id"`
 	Topic        string   `url:"topic,omitempty"`
 	UpdatedAtMin string   `url:"updated_at_min,omitempty"`
 	UpdatedAtMax string   `url:"updated_at_max,omitempty"`
@@ -138,7 +138,7 @@ func (c *ShopifyApiImpl) GetWebhooks(details ShopifyRequestDetails, options WebH
 		return
 	}
 	requestUrl := "https://" + details.ShopName + "/admin/api/2019-04/webhooks.json?" + v.Encode()
-	c.Logger.Println(requestUrl)
+	c.Logger.Println("Sending request for the webhooks", requestUrl)
 
 	req, err := http.NewRequest("GET", requestUrl, nil)
 	if err != nil {
@@ -168,7 +168,7 @@ func (c *ShopifyApiImpl) GetWebhooks(details ShopifyRequestDetails, options WebH
 
 	webhooks = wrapper.Webhooks
 
-	if len(webhooks) < options.Limit {
+	if len(webhooks) < options.Limit || (options.Limit == 0 && len(webhooks) < 50) {
 		return
 	}
 
