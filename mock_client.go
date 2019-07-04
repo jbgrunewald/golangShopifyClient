@@ -39,7 +39,7 @@ func (client *ShopifyTestImpl) OAuthRequest(details ShopifyRequestDetails, reque
 	return
 }
 
-func (client *ShopifyTestImpl) BillingRequest(details ShopifyRequestDetails, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
+func (client *ShopifyTestImpl) CreateRecurringApplicationCharge(details ShopifyRequestDetails, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
 	result, ok := client.fakeBillingSetupResponses[details.ShopName]
 	if !ok {
 		err = errors.New("something has gone wrong with setting up the billing")
