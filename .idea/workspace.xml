@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="21c3123e-c386-4182-98a2-6c9d8a276278" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mock_client.go" beforeDir="false" afterPath="$PROJECT_DIR$/mock_client.go" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -13,19 +14,19 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/webhook.go">
+        <entry file="file://$PROJECT_DIR$/client.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2445">
-              <caret line="170" column="82" selection-start-line="170" selection-start-column="7" selection-end-line="170" selection-end-column="82" />
+            <state relative-caret-position="225">
+              <caret line="19" column="19" selection-start-line="19" selection-start-column="4" selection-end-line="19" selection-end-column="19" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/client.go">
+        <entry file="file://$PROJECT_DIR$/mock_client.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
-              <caret line="10" column="36" selection-start-line="10" selection-start-column="4" selection-end-line="10" selection-end-column="36" />
+            <state relative-caret-position="149">
+              <caret line="119" column="41" selection-start-line="119" selection-start-column="26" selection-end-line="119" selection-end-column="41" />
             </state>
           </provider>
         </entry>
@@ -33,7 +34,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/product.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
+            <state relative-caret-position="1500">
               <caret line="105" selection-start-line="105" selection-end-line="105" />
             </state>
           </provider>
@@ -52,6 +53,16 @@
     <findStrings>
       <find>log</find>
       <find>log.</find>
+      <find>OAuthRequest</find>
+      <find>CreateRecurringApplicationCharge</find>
+      <find>ActivateBilling</find>
+      <find>GetShopDetails</find>
+      <find>CreateWebhook</find>
+      <find>DeleteWebhook</find>
+      <find>GetWebhooks</find>
+      <find>GetProducts</find>
+      <find>GetCollects</find>
+      <find>GetRecurringApplicationCharges</find>
     </findStrings>
     <replaceStrings>
       <replace>c.Logger.</replace>
@@ -69,10 +80,10 @@
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/recurringApplicationCharge.go" />
         <option value="$PROJECT_DIR$/script_tag.go" />
-        <option value="$PROJECT_DIR$/mock_client.go" />
         <option value="$PROJECT_DIR$/client.go" />
         <option value="$PROJECT_DIR$/webhook.go" />
         <option value="$PROJECT_DIR$/product.go" />
+        <option value="$PROJECT_DIR$/mock_client.go" />
       </list>
     </option>
   </component>
@@ -125,9 +136,8 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="877" extended-state="0" />
-    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2732475" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.27682403" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -140,7 +150,7 @@
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" order="8" />
       <window_info anchor="bottom" id="Version Control" order="9" />
-      <window_info anchor="bottom" id="Terminal" order="10" visible="true" weight="0.3299363" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="10" visible="true" weight="0.3299363" />
       <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -206,13 +216,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mock_client.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1800">
-          <caret line="122" column="72" selection-start-line="122" selection-start-column="72" selection-end-line="122" selection-end-column="72" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/script_tag.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="675">
@@ -248,24 +251,31 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/webhook.go">
+    <entry file="file://$PROJECT_DIR$/product.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2445">
-          <caret line="170" column="82" selection-start-line="170" selection-start-column="7" selection-end-line="170" selection-end-column="82" />
+        <state relative-caret-position="1500">
+          <caret line="105" selection-start-line="105" selection-end-line="105" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/product.go">
+    <entry file="file://$PROJECT_DIR$/webhook.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="105" selection-start-line="105" selection-end-line="105" />
+        <state relative-caret-position="446">
+          <caret line="170" column="82" selection-start-line="170" selection-start-column="7" selection-end-line="170" selection-end-column="82" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/client.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="10" column="36" selection-start-line="10" selection-start-column="4" selection-end-line="10" selection-end-column="36" />
+        <state relative-caret-position="225">
+          <caret line="19" column="19" selection-start-line="19" selection-start-column="4" selection-end-line="19" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mock_client.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="149">
+          <caret line="119" column="41" selection-start-line="119" selection-start-column="26" selection-end-line="119" selection-end-column="41" />
         </state>
       </provider>
     </entry>

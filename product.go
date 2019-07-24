@@ -25,6 +25,7 @@ type Product struct {
 	MetafieldsGlobalDescriptionTag string           `json:"metafields_global_description_tag,omitempty"`
 	UpdateAt                       string           `json:"update_at,omitempty"`
 	Vendor                         string           `json:"vendor,omitempty"`
+	Image                          ProductImage     `json:"image,omitempty"`
 }
 
 type ProductOption struct {
