@@ -24,7 +24,7 @@ type ScriptTageWrapper struct {
 func (c *ShopifyApiImpl) CreateScriptTag(details ShopifyRequestDetails, request ScriptTag) (result ScriptTag, err error) {
 	requestUrl := "https://" + details.ShopName + "/admin/" + c.Version + "script_tags.json"
 
-	c.Logger.Printf("Making the script tag request for shop %s using URL %s\n", details.ShopName, requestUrl, request)
+	c.Logger.Printf("Making the script tag request for shop %s using URL %s\n", details.ShopName, requestUrl)
 
 	requestStr, err := json.Marshal(ScriptTageWrapper{request})
 	if err != nil {

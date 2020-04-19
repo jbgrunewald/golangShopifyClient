@@ -38,7 +38,7 @@ type RecurringApplicationChargesWrapper struct {
 func (c *ShopifyApiImpl) CreateRecurringApplicationCharge(details ShopifyRequestDetails, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
 	requestUrl := "https://" + details.ShopName + "/admin/recurring_application_charges.json"
 
-	c.Logger.Printf("Making the recurring application charge request for shop %s using URL %s\n", details.ShopName, requestUrl, request)
+	c.Logger.Printf("Making the recurring application charge request for shop %s using URL %s\n", details.ShopName, requestUrl)
 
 	requestStr, err := json.Marshal(RecurringApplicationChargeWrapper{request})
 	if err != nil {
