@@ -6,19 +6,20 @@ import (
 	"net/http"
 )
 
-type ShopifyClient interface {
+type Client interface {
 	OAuthRequest(details ShopifyRequestDetails, request OAuthRequest) (result OAuthResponse, err error)
-	CreateRecurringApplicationCharge(details ShopifyRequestDetails, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error)
-	ActivateBilling(details ShopifyRequestDetails, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error)
-	GetShopDetails(details ShopifyRequestDetails) (result Shop, err error)
-	CreateWebhook(details ShopifyRequestDetails, request Webhook) (result Webhook, err error)
-	DeleteWebhook(details ShopifyRequestDetails, request Webhook) (err error)
-	GetWebhooks(details ShopifyRequestDetails, options WebHookRequestOptions) (webhooks []Webhook, err error)
-	GetProducts(details ShopifyRequestDetails, options ProductRequestOptions) (products []Product, err error)
-	GetCollects(details ShopifyRequestDetails, options CollectRequestOptions) (result []Collect, err error)
-	GetRecurringApplicationCharges(details ShopifyRequestDetails, options RecurringApplicationChargeOptons) (charges []RecurringApplicationCharge, err error)
-	CreateScriptTag(details ShopifyRequestDetails, scriptTag ScriptTag) (result ScriptTag, err error)
+	RecurringApplicationChargeCreate(details ShopifyRequestDetails, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error)
+	RecurringApplicationChargeActivate(details ShopifyRequestDetails, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error)
+	ShopGet(details ShopifyRequestDetails) (result Shop, err error)
+	WebhookCreate(details ShopifyRequestDetails, request Webhook) (result Webhook, err error)
+	WebhookDelete(details ShopifyRequestDetails, request Webhook) (err error)
+	WebhookList(details ShopifyRequestDetails, options WebHookRequestOptions) (webhooks []Webhook, err error)
+	ProductList(details ShopifyRequestDetails, options ProductRequestOptions) (products []Product, err error)
+	CollectList(details ShopifyRequestDetails, options CollectRequestOptions) (result []Collect, err error)
+	RecurringApplicationChargeList(details ShopifyRequestDetails, options RecurringApplicationChargeOptons) (charges []RecurringApplicationCharge, err error)
+	ScriptTagCreate(details ShopifyRequestDetails, scriptTag ScriptTag) (result ScriptTag, err error)
 }
+
 
 type ShopifyApiImpl struct {
 	Http    *http.Client

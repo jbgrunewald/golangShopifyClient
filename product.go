@@ -73,7 +73,7 @@ type ProductRequestOptions struct {
 	All                   bool
 }
 
-func (c *ShopifyApiImpl) GetProducts(details ShopifyRequestDetails, options ProductRequestOptions) (products []Product, err error) {
+func (c *ShopifyApiImpl) ProductList(details ShopifyRequestDetails, options ProductRequestOptions) (products []Product, err error) {
 	v, err := query.Values(options)
 	if err != nil {
 		c.Logger.Println("there's an issue setting up the query params")
@@ -109,7 +109,7 @@ func (c *ShopifyApiImpl) GetProducts(details ShopifyRequestDetails, options Prod
 	}
 
 	options.SinceId = products[len(products)-1].Id
-	nextResult, err := c.GetProducts(details, options)
+	nextResult, err := c.ProductList(details, options)
 
 	products = append(products, nextResult...)
 

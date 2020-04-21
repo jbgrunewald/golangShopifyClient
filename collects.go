@@ -31,7 +31,7 @@ type CollectRequestOptions struct {
 	All          bool
 }
 
-func (c *ShopifyApiImpl) GetCollects(details ShopifyRequestDetails, options CollectRequestOptions) (result []Collect, err error) {
+func (c *ShopifyApiImpl) CollectList(details ShopifyRequestDetails, options CollectRequestOptions) (result []Collect, err error) {
 	v, err := query.Values(options)
 	requestUrl := "https://" + details.ShopName + "/admin/api/2019-04/collects.json?" + v.Encode()
 	c.Logger.Println("This is the request url for the collects", requestUrl)
@@ -65,7 +65,7 @@ func (c *ShopifyApiImpl) GetCollects(details ShopifyRequestDetails, options Coll
 	}
 
 	options.SinceId = result[len(result)-1].Id
-	nextResult, err := c.GetCollects(details, options)
+	nextResult, err := c.CollectList(details, options)
 
 	result = append(result, nextResult...)
 

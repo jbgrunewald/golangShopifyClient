@@ -35,7 +35,7 @@ type RecurringApplicationChargesWrapper struct {
 	RecurringApplicationCharges []RecurringApplicationCharge `json:"recurring_application_charges,omitempty"`
 }
 
-func (c *ShopifyApiImpl) CreateRecurringApplicationCharge(details ShopifyRequestDetails, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
+func (c *ShopifyApiImpl) RecurringApplicationChargeCreate(details ShopifyRequestDetails, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
 	requestUrl := "https://" + details.ShopName + "/admin/recurring_application_charges.json"
 
 	c.Logger.Printf("Making the recurring application charge request for shop %s using URL %s\n", details.ShopName, requestUrl)
@@ -80,7 +80,7 @@ func (c *ShopifyApiImpl) CreateRecurringApplicationCharge(details ShopifyRequest
 	return
 }
 
-func (c *ShopifyApiImpl) ActivateBilling(details ShopifyRequestDetails, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
+func (c *ShopifyApiImpl) RecurringApplicationChargeActivate(details ShopifyRequestDetails, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
 	if details.AccessToken == "" || details.ShopName == "" {
 		err = errors.New("Missing the shop name or the access token from the details object inside the activate billing call.")
 		return
@@ -128,7 +128,7 @@ func (c *ShopifyApiImpl) ActivateBilling(details ShopifyRequestDetails, request 
 	return
 }
 
-func (c *ShopifyApiImpl) GetRecurringApplicationCharges(details ShopifyRequestDetails, options RecurringApplicationChargeOptons) (charges []RecurringApplicationCharge, err error) {
+func (c *ShopifyApiImpl) RecurringApplicationChargeList(details ShopifyRequestDetails, options RecurringApplicationChargeOptons) (charges []RecurringApplicationCharge, err error) {
 	v, err := query.Values(options)
 	if err != nil {
 		c.Logger.Println("there's an issue setting up the query params while request the recurring application charges")
@@ -164,7 +164,7 @@ func (c *ShopifyApiImpl) GetRecurringApplicationCharges(details ShopifyRequestDe
 	}
 
 	options.SinceId = charges[len(charges)-1].Id
-	nextResult, err := c.GetRecurringApplicationCharges(details, options)
+	nextResult, err := c.RecurringApplicationChargeList(details, options)
 
 	charges = append(charges, nextResult...)
 

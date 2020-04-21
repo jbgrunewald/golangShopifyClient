@@ -62,7 +62,7 @@ type ShopWrapper struct {
 	Shop Shop `json:"shop,omitempty"`
 }
 
-func (c *ShopifyApiImpl) GetShopDetails(details ShopifyRequestDetails) (result Shop, err error) {
+func (c *ShopifyApiImpl) ShopGet(details ShopifyRequestDetails) (result Shop, err error) {
 	requestUrl := "https://" + details.ShopName + "/admin/shop.json"
 
 	c.Logger.Printf("Requesting the shop details for shop %s using URL %s\n", details.ShopName, requestUrl)
