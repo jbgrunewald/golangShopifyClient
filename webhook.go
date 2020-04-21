@@ -51,7 +51,7 @@ type WebHookRequestOptions struct {
 	UpdatedAtMax string   `url:"updated_at_max,omitempty"`
 }
 
-func (c *ShopifyApiImpl) WebhookCreate(details ShopifyRequestDetails, request Webhook) (result Webhook, err error) {
+func (c *ShopifyApiImpl) WebhookCreate(details RequestDetails, request Webhook) (result Webhook, err error) {
 	requestUrl := "https://" + details.ShopName + "/admin/webhooks.json"
 
 	c.Logger.Printf("Requesting to create webhook for topic %s for shop %s with URL %s", request.Topic, details.ShopName, requestUrl)
@@ -103,7 +103,7 @@ func (c *ShopifyApiImpl) WebhookCreate(details ShopifyRequestDetails, request We
 	return
 }
 
-func (c *ShopifyApiImpl) WebhookDelete(details ShopifyRequestDetails, request Webhook) (err error) {
+func (c *ShopifyApiImpl) WebhookDelete(details RequestDetails, request Webhook) (err error) {
 	requestUrl := "https://" + details.ShopName + "/admin/api/2019-04/webhooks/" + string(request.Id) + ".json"
 
 	c.Logger.Printf("Requesting to delete webhook for topic %s for shop %s with URL %s", request.Topic, details.ShopName, requestUrl)
@@ -131,7 +131,7 @@ func (c *ShopifyApiImpl) WebhookDelete(details ShopifyRequestDetails, request We
 	return
 }
 
-func (c *ShopifyApiImpl) WebhookList(details ShopifyRequestDetails, options WebHookRequestOptions) (webhooks []Webhook, err error) {
+func (c *ShopifyApiImpl) WebhookList(details RequestDetails, options WebHookRequestOptions) (webhooks []Webhook, err error) {
 	v, err := query.Values(options)
 	if err != nil {
 		c.Logger.Println("there's an issue setting up the query params in the get webhooks request")
