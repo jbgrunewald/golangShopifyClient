@@ -17,7 +17,7 @@ type OAuthRequest struct {
 	Code         string `json:"code"`
 }
 
-func (c *RestAdminClient) OAuthRequest(details RequestDetails, request OAuthRequest) (result OAuthResponse, err error) {
+func (c *RestAdminClient) OAuthRequest(details Request, request OAuthRequest) (result OAuthResponse, err error) {
 
 	accessTokenRequestUrl := "https://" + details.ShopName + "/admin/oauth/access_token"
 

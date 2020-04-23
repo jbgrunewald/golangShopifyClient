@@ -60,7 +60,7 @@ type ShopWrapper struct {
 	Shop Shop `json:"shop,omitempty"`
 }
 
-func (c *RestAdminClient) ShopGet(details RequestDetails) (result Shop, err error) {
+func (c *RestAdminClient) ShopGet(details Request) (result Shop, err error) {
 	buf, err := c.get(details, "shop")
 	wrapper := ShopWrapper{}
 	err = json.Unmarshal(buf, &wrapper)

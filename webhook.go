@@ -51,12 +51,12 @@ type WebHookRequestOptions struct {
 	UpdatedAtMax string   `url:"updated_at_max,omitempty"`
 }
 
-func (c *RestAdminClient) WebhookCreate(details RequestDetails, request Webhook) (result Webhook, err error) {
+func (c *RestAdminClient) WebhookCreate(details Request, resource Webhook) (result Webhook, err error) {
 	requestUrl := "https://" + details.ShopName + "/admin/webhooks.json"
 
-	c.Logger.Printf("Requesting to create webhook for topic %s for shop %s with URL %s", request.Topic, details.ShopName, requestUrl)
+	c.Logger.Printf("Requesting to create webhook for topic %s for shop %s with URL %s", resource.Topic, details.ShopName, requestUrl)
 
-	requestStr, err := json.Marshal(WebhookWrapper{request})
+	requestStr, err := json.Marshal(WebhookWrapper{resource})
 	if err != nil {
 		return
 	}
@@ -77,14 +77,14 @@ func (c *RestAdminClient) WebhookCreate(details RequestDetails, request Webhook)
 	}
 
 	buf, err := ioutil.ReadAll(resp.Body)
-	c.Logger.Println("This is the response from the webhook create request: ", string(buf))
+	c.Logger.Println("This is the response from the webhook create resource: ", string(buf))
 	wrapper := WebhookWrapper{}
 	if err != nil {
 		return
 	}
 
 	if resp.StatusCode != 201 {
-		err = errors.New("The webhook request was unsuccesful")
+		err = errors.New("The webhook resource was unsuccesful")
 		return
 	}
 
@@ -96,14 +96,14 @@ func (c *RestAdminClient) WebhookCreate(details RequestDetails, request Webhook)
 	result = wrapper.Webhook
 
 	if result.Id == 0 {
-		err = errors.New("The request returned but the webhook has no Id, which implies it did not succeed")
+		err = errors.New("The resource returned but the webhook has no Id, which implies it did not succeed")
 		return
 	}
 
 	return
 }
 
-func (c *RestAdminClient) WebhookDelete(details RequestDetails, request Webhook) (err error) {
+func (c *RestAdminClient) WebhookDelete(details Request, request Webhook) (err error) {
 	requestUrl := "https://" + details.ShopName + "/admin/api/2019-04/webhooks/" + string(request.Id) + ".json"
 
 	c.Logger.Printf("Requesting to delete webhook for topic %s for shop %s with URL %s", request.Topic, details.ShopName, requestUrl)
@@ -131,7 +131,7 @@ func (c *RestAdminClient) WebhookDelete(details RequestDetails, request Webhook)
 	return
 }
 
-func (c *RestAdminClient) WebhookList(details RequestDetails, options WebHookRequestOptions) (webhooks []Webhook, err error) {
+func (c *RestAdminClient) WebhookList(details Request, options WebHookRequestOptions) (webhooks []Webhook, err error) {
 	v, err := query.Values(options)
 	if err != nil {
 		c.Logger.Println("there's an issue setting up the query params in the get webhooks request")

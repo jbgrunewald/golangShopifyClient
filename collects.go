@@ -31,7 +31,7 @@ type CollectRequestOptions struct {
 	All          bool
 }
 
-func (c *RestAdminClient) CollectList(details RequestDetails, options CollectRequestOptions) (result []Collect, err error) {
+func (c *RestAdminClient) CollectList(details Request, options CollectRequestOptions) (result []Collect, err error) {
 	v, err := query.Values(options)
 	requestUrl := "https://" + details.ShopName + "/admin/api/2019-04/collects.json?" + v.Encode()
 	c.Logger.Println("This is the request url for the collects", requestUrl)
