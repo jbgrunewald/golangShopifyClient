@@ -1,13 +1,13 @@
 package shopify
 
 import (
+	"bytes"
 	"context"
 	"github.com/pkg/errors"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
+	"strings"
 )
 
 type Client interface {
@@ -15,9 +15,9 @@ type Client interface {
 	RecurringApplicationChargeCreate(details Request, request RecurringApplicationCharge) (RecurringApplicationCharge, error)
 	RecurringApplicationChargeActivate(Request, RecurringApplicationCharge) (RecurringApplicationCharge, error)
 	ShopGet(Request) (Shop, error)
-	WebhookCreate(Request, Webhook) (Webhook, error)
-	WebhookDelete(Request, Webhook) error
-	WebhookList(Request, WebHookRequestOptions) ([]Webhook, error)
+	WebhookCreate(ShopifyContext, Webhook) (Webhook, error)
+	WebhookDelete(ShopifyContext, int) error
+	WebhookList(ShopifyContext, WebHookRequestOptions) ([]Webhook, error)
 	ProductList(Request, ProductRequestOptions) ([]Product, error)
 	CollectList(Request, CollectRequestOptions) ([]Collect, error)
 	RecurringApplicationChargeList(Request, RecurringApplicationChargeOptons) ([]RecurringApplicationCharge, error)
@@ -30,25 +30,29 @@ type RestAdminClient struct {
 	Version ApiVersion
 }
 
+type ShopifyContext struct {
+	ShopName     string
+	AccessToken  string
+	Ctx          context.Context
+	AutoPaginate bool
+}
+
 type Request struct {
-	ShopName    string
-	AccessToken string
-	Ctx         context.Context
-	Method string
-	Url url.URL
+	Context ShopifyContext
+	Method  string
+	Url     string
 	Headers map[string]string
-	Resource string
-	Body io.Reader
+	Body    []byte
 }
 
 func (r *RestAdminClient) Request(request Request) (result []byte, err error) {
-	req, err := http.NewRequestWithContext(request.Ctx, request.Method, request.Url.String(), request.Body)
+	req, err := http.NewRequestWithContext(request.Context.Ctx, request.Method, request.Url, bytes.NewBuffer(request.Body))
 	if err != nil {
 		err = errors.WithMessagef(err, "unable to create request with input %s", request)
 		return
 	}
 
-	req.Header.Set("X-Shopify-Access-Token", request.AccessToken)
+	req.Header.Set("X-Shopify-Access-Token", request.Context.AccessToken)
 	req.Header.Set("Content-Type", "application/json")
 
 	for k, v := range request.Headers {
@@ -75,5 +79,45 @@ func (r *RestAdminClient) Request(request Request) (result []byte, err error) {
 		return
 	}
 
+	return
+}
+
+/*
+A helper for building the base url for a shopify request
+*/
+func (r *RestAdminClient) BuildBaseUrl(request Request) (url string) {
+	pathBuilder := strings.Builder{}
+	pathBuilder.WriteString("https://")
+	pathBuilder.WriteString(request.Context.ShopName)
+	pathBuilder.WriteString("/admin/")
+	pathBuilder.WriteString(r.Version.String())
+	pathBuilder.WriteString("/")
+	url = pathBuilder.String()
+	return
+}
+
+/*
+A Helper function to build a request url with only a resource component.
+*/
+func (r *RestAdminClient) BuildSimpleUrl(request Request, resource string) (url string) {
+	pathBuilder := strings.Builder{}
+	pathBuilder.WriteString(r.BuildBaseUrl(request))
+	pathBuilder.WriteString("/")
+	pathBuilder.WriteString(resource)
+	pathBuilder.WriteString(".json")
+	url = pathBuilder.String()
+	return
+}
+
+/*
+A helper for building a url that has an id
+*/
+func (r *RestAdminClient) BuildIdUrl(request Request, resource string, id int) (url string) {
+	pathBuilder := strings.Builder{}
+	pathBuilder.WriteString(r.BuildBaseUrl(request))
+	pathBuilder.WriteString("/")
+	pathBuilder.WriteString(resource)
+	pathBuilder.WriteString(".json")
+	url = pathBuilder.String()
 	return
 }
