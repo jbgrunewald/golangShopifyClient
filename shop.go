@@ -63,7 +63,7 @@ func (s ShopWrapper) GetResourceName() string {
 func (s ShopWrapper) GetId() int {
 	return s.Shop.Id
 }
-func (s ShopWrapper) BuildUrl(request Request) string {
+func (s ShopWrapper) BuildGetUrl(request Request) string {
 	return BuildSimpleUrl(request, s.GetResourceName())
 }
 

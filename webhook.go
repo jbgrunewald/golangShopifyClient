@@ -1,7 +1,6 @@
 package shopify
 
 import (
-	"encoding/json"
 	"github.com/google/go-querystring/query"
 	"github.com/pkg/errors"
 )
@@ -27,12 +26,21 @@ type Webhook struct {
 	UpdatedAt           string   `json:"updated_at, omitempty"`
 }
 
-func (w WebhooksWrapper) NewWrapper() WebhooksWrapper {
-	return WebhooksWrapper{}
+type WebhookWrapper struct {
+	Webhook Webhook `json:"webhook"`
 }
 
-func (w WebhooksWrapper) GetCount() int {
-	return len(w.Webhooks)
+func (w WebhookWrapper) GetResourceName() string {
+	return "webhook"
+}
+
+func (w WebhookWrapper) BuildCreateUrl(request Request) string {
+	return BuildSimpleUrl(request, w.GetResourceName())
+}
+
+type WebhooksWrapper struct {
+	Webhooks []Webhook `json:"webhooks"`
+	Errors   string    `json:"errors"`
 }
 
 func (w WebhooksWrapper) GetLastId() int {
@@ -41,15 +49,6 @@ func (w WebhooksWrapper) GetLastId() int {
 
 func (w WebhooksWrapper) GetResourceName() string {
 	return "webhooks"
-}
-
-type WebhookWrapper struct {
-	Webhook Webhook `json:"webhook"`
-}
-
-type WebhooksWrapper struct {
-	Webhooks []Webhook `json:"webhooks"`
-	Errors   string    `json:"errors"`
 }
 
 type WebHookRequestOptions struct {
@@ -76,34 +75,8 @@ func (w WebHookRequestOptions) UrlOptionsString() (queryParams string, err error
 }
 
 func (r *RestAdminClient) WebhookCreate(context ShopifyContext, resource Webhook) (result Webhook, err error) {
-	var request = Request{
-		Context: context,
-		Method:  "POST",
-	}
-	request.Url = BuildSimpleUrl(request, "webhooks")
-
-	r.logger.Printf("create webhook for topic %s for shop %s", resource.Topic, context.ShopName)
-
-	request.Body, err = json.Marshal(WebhookWrapper{resource})
-	if err != nil {
-		err = errors.WithMessage(err, "failure while marshaling the request body")
-		return
-	}
-
-	buf, err := r.Request(request)
-	if err != nil {
-		err = errors.WithMessage(err, "failure making request")
-		return
-	}
-
-	wrapper := WebhookWrapper{}
-
-	err = json.Unmarshal(buf, &wrapper)
-	if err != nil {
-		err = errors.WithMessage(err, "failure while unmarshaling the response")
-		return
-	}
-
+	var wrapper = &WebhookWrapper{}
+	err = r.Create(context, wrapper)
 	result = wrapper.Webhook
 
 	return

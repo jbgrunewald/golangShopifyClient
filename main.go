@@ -1,5 +1,7 @@
 package shopify
 
+import "fmt"
+
 func main() {
 	var client = &RestAdminClient{}
 
@@ -10,5 +12,5 @@ func main() {
 
 	webhook := Webhook{}
 	result, err := client.WebhookCreate(details, webhook)
-	println(result, err)
+	fmt.Println(result, err)
 }

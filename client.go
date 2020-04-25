@@ -13,15 +13,22 @@ import (
 
 type Client interface {
 	OAuthRequest(Request, OAuthRequest) (OAuthResponse, error)
+
 	RecurringApplicationChargeCreate(details Request, request RecurringApplicationCharge) (RecurringApplicationCharge, error)
 	RecurringApplicationChargeActivate(Request, RecurringApplicationCharge) (RecurringApplicationCharge, error)
+
 	ShopGet(Request) (Shop, error)
+
 	WebhookCreate(ShopifyContext, Webhook) (Webhook, error)
 	WebhookDelete(ShopifyContext, int) error
 	WebhookList(ShopifyContext, WebHookRequestOptions) ([]Webhook, error)
+
 	ProductList(Request, ProductRequestOptions) ([]Product, error)
+
 	CollectList(Request, CollectRequestOptions) ([]Collect, error)
+
 	RecurringApplicationChargeList(Request, RecurringApplicationChargeOptons) ([]RecurringApplicationCharge, error)
+
 	ScriptTagCreate(Request, ScriptTag) (ScriptTag, error)
 }
 
@@ -30,15 +37,18 @@ type QueryParamStringer interface {
 }
 
 type Lister interface {
-	NewWrapper() WebhooksWrapper
-	GetCount() int
+	GetResourceName() string
+}
+
+type Creator interface {
+	BuildCreateUrl(Request) string
 	GetResourceName() string
 }
 
 type Getter interface {
 	GetId() int
 	GetResourceName() string
-	BuildUrl(Request) string
+	BuildGetUrl(Request) string
 }
 
 type RestAdminClient struct {
@@ -128,7 +138,7 @@ func (r *RestAdminClient) Get(context ShopifyContext, resource Getter) (err erro
 		Version: r.Version,
 	}
 
-	request.Url = resource.BuildUrl(request)
+	request.Url = resource.BuildGetUrl(request)
 
 	buf, err := r.Request(request)
 
@@ -137,6 +147,27 @@ func (r *RestAdminClient) Get(context ShopifyContext, resource Getter) (err erro
 	if err != nil {
 		return
 
+	}
+
+	return
+}
+
+func (r *RestAdminClient) Create(context ShopifyContext, resource Creator) (err error) {
+	var request = Request{
+		Context: context,
+		Method:  "POST",
+		Version: r.Version,
+	}
+	request.Url = resource.BuildCreateUrl(request)
+
+	r.logger.Printf("making request to create %s with url %s", resource.GetResourceName(), request.Url)
+
+	buf, err := r.Request(request)
+
+	decoder := json.NewDecoder(buf)
+	err = decoder.Decode(resource)
+	if err != nil {
+		return
 	}
 
 	return
