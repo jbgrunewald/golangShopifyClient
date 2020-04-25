@@ -6,8 +6,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-const webhooks string = "webhooks"
-
 const (
 	ProductCreate  = "products/create"
 	ProductUpdate  = "products/update"
@@ -27,6 +25,22 @@ type Webhook struct {
 	MetafieldNamespaces []string `json:"metafield_namespaces, omitempty"`
 	Topic               string   `json:"topic"`
 	UpdatedAt           string   `json:"updated_at, omitempty"`
+}
+
+func (w WebhooksWrapper) NewWrapper() WebhooksWrapper {
+	return WebhooksWrapper{}
+}
+
+func (w WebhooksWrapper) GetCount() int {
+	return len(w.Webhooks)
+}
+
+func (w WebhooksWrapper) GetLastId() int  {
+	return w.Webhooks[len(w.Webhooks)-1].Id
+}
+
+func (w WebhooksWrapper) GetResourceName() string  {
+	return "webhooks"
 }
 
 type WebhookWrapper struct {
@@ -66,7 +80,7 @@ func (r *RestAdminClient) WebhookCreate(context ShopifyContext, resource Webhook
 		Context: context,
 		Method:  "POST",
 	}
-	request.Url = r.BuildSimpleUrl(request, webhooks)
+	request.Url = r.BuildSimpleUrl(request, "webhooks")
 
 	r.Logger.Printf("create webhook for topic %s for shop %s", resource.Topic, context.ShopName)
 
@@ -100,7 +114,7 @@ func (r *RestAdminClient) WebhookDelete(context ShopifyContext, id int) (err err
 		Context: context,
 		Method:  "DELETE",
 	}
-	request.Url = r.BuildIdUrl(request, webhooks, id)
+	request.Url = r.BuildIdUrl(request, "webhooks", id)
 	r.Logger.Printf("requesting to delete webhook with id %s", id)
 
 	_, err = r.Request(request)
@@ -112,40 +126,27 @@ func (r *RestAdminClient) WebhookDelete(context ShopifyContext, id int) (err err
 }
 
 func (r *RestAdminClient) WebhookList(context ShopifyContext, options WebHookRequestOptions) (results []Webhook, err error) {
-	var request = Request{
-		Context: context,
-		Method:  "GET",
-	}
-	request.Url = r.BuildSimpleUrl(request, "webhooks")
-	r.Logger.Println("sending request for the webhooks", request.Url)
-
-	buf, err := r.Request(request)
-
-	wrapper := WebhooksWrapper{}
-
-	err = json.Unmarshal(buf, &wrapper)
-	if err != nil {
-		return
-	}
-
+	var wrapper = &WebhooksWrapper{}
+	err = r.List(context, options, wrapper)
 	results = wrapper.Webhooks
 
-	if context.AutoPaginate {
-		//TODO add support for curser based pagination
-		if len(results) < options.Limit || (options.Limit == 0 && len(results) < 50) {
-			return
-		}
-
-		options.SinceId = results[len(results)-1].Id
-		nextResult, err := r.WebhookList(context, options)
-		if err != nil {
-			err = errors.WithMessage(err, "failure during pagination...aborting")
-			results = []Webhook{}
-			return
-		}
-		results = append(results, nextResult...)
-		return
-	}
+	//TODO figure out a way to generalize the autopaginate logic
+	//if context.AutoPaginate {
+	//	//TODO add support for curser based pagination
+	//	if len(results) < options.Limit || (options.Limit == 0 && len(results) < 50) {
+	//		return
+	//	}
+	//
+	//	options.SinceId = results[len(results)-1].Id
+	//	nextResult, err := r.WebhookList(context, options)
+	//	if err != nil {
+	//		err = errors.WithMessage(err, "failure during pagination...aborting")
+	//		results = []Webhook{}
+	//		return
+	//	}
+	//	results = append(results, nextResult...)
+	//	return
+	//}
 
 	return
 }

@@ -3,7 +3,9 @@ package shopify
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"github.com/pkg/errors"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -22,6 +24,16 @@ type Client interface {
 	CollectList(Request, CollectRequestOptions) ([]Collect, error)
 	RecurringApplicationChargeList(Request, RecurringApplicationChargeOptons) ([]RecurringApplicationCharge, error)
 	ScriptTagCreate(Request, ScriptTag) (ScriptTag, error)
+}
+
+type QueryParamStringer interface {
+	UrlOptionsString() (queryParams string, err error)
+}
+
+type Lister interface {
+	NewWrapper() WebhooksWrapper
+	GetCount() int
+	GetResourceName() string
 }
 
 type RestAdminClient struct {
@@ -45,7 +57,7 @@ type Request struct {
 	Body    []byte
 }
 
-func (r *RestAdminClient) Request(request Request) (result []byte, err error) {
+func (r *RestAdminClient) Request(request Request) (result io.Reader, err error) {
 	req, err := http.NewRequestWithContext(request.Context.Ctx, request.Method, request.Url, bytes.NewBuffer(request.Body))
 	if err != nil {
 		err = errors.WithMessagef(err, "unable to create request with input %s", request)
@@ -65,16 +77,11 @@ func (r *RestAdminClient) Request(request Request) (result []byte, err error) {
 		return
 	}
 
-	result, err = ioutil.ReadAll(resp.Body)
-	if err != nil {
-		err = errors.WithMessage(err, "failed to read response body")
-		return
-	}
-
-	r.Logger.Println("received response: ", string(result))
+	result = resp.Body
 
 	if resp.StatusCode >= 300 {
-		err = errors.New(string(result))
+		response, _ := ioutil.ReadAll(resp.Body)
+		err = errors.New(string(response))
 		err = errors.WithMessagef(err, "received %v response", resp.StatusCode)
 		return
 	}
@@ -119,5 +126,29 @@ func (r *RestAdminClient) BuildIdUrl(request Request, resource string, id int) (
 	pathBuilder.WriteString(resource)
 	pathBuilder.WriteString(".json")
 	url = pathBuilder.String()
+	return
+}
+
+func (r *RestAdminClient) List(context ShopifyContext, options QueryParamStringer, resource Lister) (err error) {
+	var request = Request{
+		Context: context,
+		Method:  "GET",
+	}
+	optionString, err := options.UrlOptionsString()
+	if err != nil {
+		return
+	}
+	request.Url = r.BuildSimpleUrl(request, resource.GetResourceName()) + "?" + optionString
+	r.Logger.Println("sending request for the webhooks", request.Url)
+
+	buf, err := r.Request(request)
+
+	decoder := json.NewDecoder(buf)
+	err = decoder.Decode(resource)
+	if err != nil {
+		return
+
+	}
+
 	return
 }
