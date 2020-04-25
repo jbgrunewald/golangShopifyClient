@@ -1,9 +1,5 @@
 package shopify
 
-import (
-	"encoding/json"
-)
-
 type Shop struct {
 	AddressOne                     string   `json:"address1,omitempty"`
 	AddressTwo                     string   `json:"address2,omitempty"`
@@ -60,14 +56,20 @@ type ShopWrapper struct {
 	Shop Shop `json:"shop,omitempty"`
 }
 
-func (c *RestAdminClient) ShopGet(details Request) (result Shop, err error) {
-	buf, err := c.get(details, "shop")
-	wrapper := ShopWrapper{}
-	err = json.Unmarshal(buf, &wrapper)
-	if err != nil {
-		return
-	}
+func (s ShopWrapper) GetResourceName() string {
+	return "shop"
+}
 
+func (s ShopWrapper) GetId() int {
+	return s.Shop.Id
+}
+func (s ShopWrapper) BuildUrl(request Request) string {
+	return BuildSimpleUrl(request, s.GetResourceName())
+}
+
+func (c *RestAdminClient) ShopGet(context ShopifyContext) (result Shop, err error) {
+	wrapper := &ShopWrapper{}
+	err = c.Get(context, wrapper)
 	result = wrapper.Shop
 
 	return

@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strings"
 )
 
 type Client interface {
@@ -36,17 +35,24 @@ type Lister interface {
 	GetResourceName() string
 }
 
+type Getter interface {
+	GetId() int
+	GetResourceName() string
+	BuildUrl(Request) string
+}
+
 type RestAdminClient struct {
-	Http    *http.Client
-	Logger  *log.Logger
+	http    *http.Client
+	logger  *log.Logger
 	Version ApiVersion
 }
 
 type ShopifyContext struct {
-	ShopName     string
-	AccessToken  string
-	Ctx          context.Context
-	AutoPaginate bool
+	ShopName    string
+	AccessToken string
+	Ctx         context.Context
+	ApiKey      string
+	Password    string
 }
 
 type Request struct {
@@ -55,6 +61,7 @@ type Request struct {
 	Url     string
 	Headers map[string]string
 	Body    []byte
+	Version ApiVersion
 }
 
 func (r *RestAdminClient) Request(request Request) (result io.Reader, err error) {
@@ -71,7 +78,7 @@ func (r *RestAdminClient) Request(request Request) (result io.Reader, err error)
 		req.Header.Set(k, v)
 	}
 
-	resp, err := r.Http.Do(req)
+	resp, err := r.http.Do(req)
 	if err != nil {
 		err = errors.WithMessagef(err, "request failed %s", request)
 		return
@@ -89,57 +96,39 @@ func (r *RestAdminClient) Request(request Request) (result io.Reader, err error)
 	return
 }
 
-/*
-A helper for building the base url for a shopify request
-*/
-func (r *RestAdminClient) BuildBaseUrl(request Request) (url string) {
-	pathBuilder := strings.Builder{}
-	pathBuilder.WriteString("https://")
-	pathBuilder.WriteString(request.Context.ShopName)
-	pathBuilder.WriteString("/admin/")
-	pathBuilder.WriteString(r.Version.String())
-	pathBuilder.WriteString("/")
-	url = pathBuilder.String()
-	return
-}
-
-/*
-A Helper function to build a request url with only a resource component.
-*/
-func (r *RestAdminClient) BuildSimpleUrl(request Request, resource string) (url string) {
-	pathBuilder := strings.Builder{}
-	pathBuilder.WriteString(r.BuildBaseUrl(request))
-	pathBuilder.WriteString("/")
-	pathBuilder.WriteString(resource)
-	pathBuilder.WriteString(".json")
-	url = pathBuilder.String()
-	return
-}
-
-/*
-A helper for building a url that has an id
-*/
-func (r *RestAdminClient) BuildIdUrl(request Request, resource string, id int) (url string) {
-	pathBuilder := strings.Builder{}
-	pathBuilder.WriteString(r.BuildBaseUrl(request))
-	pathBuilder.WriteString("/")
-	pathBuilder.WriteString(resource)
-	pathBuilder.WriteString(".json")
-	url = pathBuilder.String()
-	return
-}
-
 func (r *RestAdminClient) List(context ShopifyContext, options QueryParamStringer, resource Lister) (err error) {
 	var request = Request{
 		Context: context,
 		Method:  "GET",
+		Version: r.Version,
 	}
 	optionString, err := options.UrlOptionsString()
 	if err != nil {
 		return
 	}
-	request.Url = r.BuildSimpleUrl(request, resource.GetResourceName()) + "?" + optionString
-	r.Logger.Println("sending request for the webhooks", request.Url)
+	request.Url = BuildSimpleUrl(request, resource.GetResourceName()) + "?" + optionString
+	r.logger.Printf("sending request for the %s with url %s", resource.GetResourceName(), request.Url)
+
+	buf, err := r.Request(request)
+
+	decoder := json.NewDecoder(buf)
+	err = decoder.Decode(resource)
+	if err != nil {
+		return
+
+	}
+
+	return
+}
+
+func (r *RestAdminClient) Get(context ShopifyContext, resource Getter) (err error) {
+	var request = Request{
+		Context: context,
+		Method:  "GET",
+		Version: r.Version,
+	}
+
+	request.Url = resource.BuildUrl(request)
 
 	buf, err := r.Request(request)
 

@@ -21,10 +21,10 @@ type ScriptTageWrapper struct {
 	ScriptTag ScriptTag `json:"script_tag"`
 }
 
-func (c *RestAdminClient) ScriptTagCreate(details Request, request ScriptTag) (result ScriptTag, err error) {
-	requestUrl := "https://" + details.ShopName + "/admin/" + c.Version + "script_tags.json"
+func (c *RestAdminClient) ScriptTagCreate(details ShopifyContext, request ScriptTag) (result ScriptTag, err error) {
+	requestUrl := "https://" + details.ShopName + "/admin/" + c.Version.String() + "script_tags.json"
 
-	c.Logger.Printf("Making the script tag request for shop %s using URL %s\n", details.ShopName, requestUrl)
+	c.logger.Printf("Making the script tag request for shop %s using URL %s\n", details.ShopName, requestUrl)
 
 	requestStr, err := json.Marshal(ScriptTageWrapper{request})
 	if err != nil {
@@ -41,26 +41,26 @@ func (c *RestAdminClient) ScriptTagCreate(details Request, request ScriptTag) (r
 	req.Header.Add("X-Shopify-Access-Token", details.AccessToken)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := c.Http.Do(req)
+	resp, err := c.http.Do(req)
 	defer resp.Body.Close()
 	if err != nil {
 		return
 	}
 
 	if resp.StatusCode != 201 {
-		c.Logger.Println("The billing request response status code is: ", resp.StatusCode)
+		c.logger.Println("The billing request response status code is: ", resp.StatusCode)
 		return result, errors.New("Received non 201 response code from the server")
 	}
 
 	buf, _ := ioutil.ReadAll(resp.Body)
-	c.Logger.Println("The response for the recurring billing request is: ", string(buf))
+	c.logger.Println("The response for the recurring billing request is: ", string(buf))
 	wrapper := ScriptTageWrapper{}
 	err = json.Unmarshal(buf, &wrapper)
 	if err != nil {
-		c.Logger.Println("Error unmarshaling the script tag response", err.Error())
+		c.logger.Println("Error unmarshaling the script tag response", err.Error())
 	}
 
-	c.Logger.Println("The result of the unmarshaling: ", wrapper)
+	c.logger.Println("The result of the unmarshaling: ", wrapper)
 	result = wrapper.ScriptTag
 
 	return

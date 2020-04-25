@@ -35,11 +35,11 @@ func (w WebhooksWrapper) GetCount() int {
 	return len(w.Webhooks)
 }
 
-func (w WebhooksWrapper) GetLastId() int  {
+func (w WebhooksWrapper) GetLastId() int {
 	return w.Webhooks[len(w.Webhooks)-1].Id
 }
 
-func (w WebhooksWrapper) GetResourceName() string  {
+func (w WebhooksWrapper) GetResourceName() string {
 	return "webhooks"
 }
 
@@ -80,9 +80,9 @@ func (r *RestAdminClient) WebhookCreate(context ShopifyContext, resource Webhook
 		Context: context,
 		Method:  "POST",
 	}
-	request.Url = r.BuildSimpleUrl(request, "webhooks")
+	request.Url = BuildSimpleUrl(request, "webhooks")
 
-	r.Logger.Printf("create webhook for topic %s for shop %s", resource.Topic, context.ShopName)
+	r.logger.Printf("create webhook for topic %s for shop %s", resource.Topic, context.ShopName)
 
 	request.Body, err = json.Marshal(WebhookWrapper{resource})
 	if err != nil {
@@ -114,8 +114,8 @@ func (r *RestAdminClient) WebhookDelete(context ShopifyContext, id int) (err err
 		Context: context,
 		Method:  "DELETE",
 	}
-	request.Url = r.BuildIdUrl(request, "webhooks", id)
-	r.Logger.Printf("requesting to delete webhook with id %s", id)
+	request.Url = BuildIdUrl(request, "webhooks", id)
+	r.logger.Printf("requesting to delete webhook with id %s", id)
 
 	_, err = r.Request(request)
 	if err != nil {

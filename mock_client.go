@@ -29,7 +29,7 @@ func NewShopifyTestImp() *ShopifyTestImpl {
 	return &imp
 }
 
-func (client *ShopifyTestImpl) OAuthRequest(details Request, request OAuthRequest) (result OAuthResponse, err error) {
+func (client *ShopifyTestImpl) OAuthRequest(details ShopifyContext, request OAuthRequest) (result OAuthResponse, err error) {
 	result, ok := client.fakeOAuthResponses[details.ShopName]
 	if !ok {
 		err = errors.New("something has gone wrong with oAuth")
@@ -39,7 +39,7 @@ func (client *ShopifyTestImpl) OAuthRequest(details Request, request OAuthReques
 	return
 }
 
-func (client *ShopifyTestImpl) RecurringApplicationChargeCreate(details Request, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
+func (client *ShopifyTestImpl) RecurringApplicationChargeCreate(details ShopifyContext, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
 	result, ok := client.fakeBillingSetupResponses[details.ShopName]
 	if !ok {
 		err = errors.New("something has gone wrong with setting up the billing")
@@ -48,7 +48,7 @@ func (client *ShopifyTestImpl) RecurringApplicationChargeCreate(details Request,
 	return
 }
 
-func (client *ShopifyTestImpl) RecurringApplicationChargeActivate(details Request, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
+func (client *ShopifyTestImpl) RecurringApplicationChargeActivate(details ShopifyContext, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
 	result, ok := client.fakeBillingActivateResponses[details.ShopName]
 	if !ok {
 		err = errors.New("something has gone wrong with activate billing")
@@ -58,7 +58,7 @@ func (client *ShopifyTestImpl) RecurringApplicationChargeActivate(details Reques
 	return
 }
 
-func (client *ShopifyTestImpl) ShopGet(details Request) (result Shop, err error) {
+func (client *ShopifyTestImpl) ShopGet(details ShopifyContext) (result Shop, err error) {
 	result, ok := client.fakeShopResponses[details.ShopName]
 	if !ok {
 		err = errors.New("something has gone wrong with shop details")
@@ -67,7 +67,7 @@ func (client *ShopifyTestImpl) ShopGet(details Request) (result Shop, err error)
 	return
 }
 
-func (client *ShopifyTestImpl) WebhookCreate(details Request, request Webhook) (result Webhook, err error) {
+func (client *ShopifyTestImpl) WebhookCreate(details ShopifyContext, request Webhook) (result Webhook, err error) {
 	result, ok := client.fakeCreateWebhookResponses[details.ShopName]
 	if !ok {
 		err = errors.New("something has gone wrong with requesting the webhook")
@@ -76,12 +76,12 @@ func (client *ShopifyTestImpl) WebhookCreate(details Request, request Webhook) (
 	return
 }
 
-func (client *ShopifyTestImpl) WebhookDelete(details Request, request Webhook) (err error) {
+func (client *ShopifyTestImpl) WebhookDelete(details ShopifyContext, request Webhook) (err error) {
 	delete(client.fakeCreateWebhookResponses, details.ShopName)
 	return
 }
 
-func (client *ShopifyTestImpl) WebhookList(details Request, options WebHookRequestOptions) (result []Webhook, err error) {
+func (client *ShopifyTestImpl) WebhookList(details ShopifyContext, options WebHookRequestOptions) (result []Webhook, err error) {
 	result, ok := client.fakeGetWebhookResponse[details.ShopName]
 	if !ok {
 		err = errors.New("something has gone wrong requesting the webhooks")
@@ -90,7 +90,7 @@ func (client *ShopifyTestImpl) WebhookList(details Request, options WebHookReque
 	return
 }
 
-func (client *ShopifyTestImpl) ProductList(details Request, options ProductRequestOptions) (result []Product, err error) {
+func (client *ShopifyTestImpl) ProductList(details ShopifyContext, options ProductRequestOptions) (result []Product, err error) {
 	result, ok := client.fakeProductsResponses[details.ShopName]
 	if !ok {
 		err = errors.New("something has gone wrong with requesting the products")
@@ -99,7 +99,7 @@ func (client *ShopifyTestImpl) ProductList(details Request, options ProductReque
 	return
 }
 
-func (client *ShopifyTestImpl) CollectList(details Request, options CollectRequestOptions) (result []Collect, err error) {
+func (client *ShopifyTestImpl) CollectList(details ShopifyContext, options CollectRequestOptions) (result []Collect, err error) {
 	result, ok := client.fakeCollectsResponses[details.ShopName]
 	if !ok {
 		err = errors.New("there was an issue with requesting the collects")
@@ -108,7 +108,7 @@ func (client *ShopifyTestImpl) CollectList(details Request, options CollectReque
 	return
 }
 
-func (client *ShopifyTestImpl) RecurringApplicationChargeList(details Request, options RecurringApplicationChargeOptons) (result []RecurringApplicationCharge, err error) {
+func (client *ShopifyTestImpl) RecurringApplicationChargeList(details ShopifyContext, options RecurringApplicationChargeOptons) (result []RecurringApplicationCharge, err error) {
 	result, ok := client.fakeRecurringApplicationCharges[details.ShopName]
 	if !ok {
 		err = errors.New("there was an issue with getting the reccurring application charges")
@@ -117,7 +117,7 @@ func (client *ShopifyTestImpl) RecurringApplicationChargeList(details Request, o
 	return
 }
 
-func (c *ShopifyTestImpl) ScriptTagCreate(details Request, scriptTag ScriptTag) (result ScriptTag, err error) {
+func (c *ShopifyTestImpl) ScriptTagCreate(details ShopifyContext, scriptTag ScriptTag) (result ScriptTag, err error) {
 	result, ok := c.fakeScriptTag[details.ShopName]
 	if !ok {
 		err = errors.New("there was an issue with getting the script tag")

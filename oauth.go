@@ -17,7 +17,7 @@ type OAuthRequest struct {
 	Code         string `json:"code"`
 }
 
-func (c *RestAdminClient) OAuthRequest(details Request, request OAuthRequest) (result OAuthResponse, err error) {
+func (c *RestAdminClient) OAuthRequest(details ShopifyContext, request OAuthRequest) (result OAuthResponse, err error) {
 
 	accessTokenRequestUrl := "https://" + details.ShopName + "/admin/oauth/access_token"
 
@@ -26,7 +26,7 @@ func (c *RestAdminClient) OAuthRequest(details Request, request OAuthRequest) (r
 		return
 	}
 
-	resp, err := c.Http.Post(accessTokenRequestUrl, "application/json", bytes.NewBuffer(requestStr))
+	resp, err := c.http.Post(accessTokenRequestUrl, "application/json", bytes.NewBuffer(requestStr))
 	if err != nil {
 		return
 	}

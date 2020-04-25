@@ -31,12 +31,12 @@ type CollectRequestOptions struct {
 	All          bool
 }
 
-func (c *RestAdminClient) CollectList(details Request, options CollectRequestOptions) (result []Collect, err error) {
+func (c *RestAdminClient) CollectList(details ShopifyContext, options CollectRequestOptions) (result []Collect, err error) {
 	v, err := query.Values(options)
 	requestUrl := "https://" + details.ShopName + "/admin/api/2019-04/collects.json?" + v.Encode()
-	c.Logger.Println("This is the request url for the collects", requestUrl)
+	c.logger.Println("This is the request url for the collects", requestUrl)
 
-	c.Logger.Printf("Requesting collects for shop %s using options %v\n", details.ShopName, options)
+	c.logger.Printf("Requesting collects for shop %s using options %v\n", details.ShopName, options)
 
 	req, err := http.NewRequest("GET", requestUrl, nil)
 	if err != nil {
@@ -45,13 +45,13 @@ func (c *RestAdminClient) CollectList(details Request, options CollectRequestOpt
 
 	req.Header.Add("X-Shopify-Access-Token", details.AccessToken)
 
-	resp, err := c.Http.Do(req)
+	resp, err := c.http.Do(req)
 	if err != nil {
 		return
 	}
 
 	buf, _ := ioutil.ReadAll(resp.Body)
-	c.Logger.Println("This is the response from the request for the collects: ", string(buf))
+	c.logger.Println("This is the response from the request for the collects: ", string(buf))
 	wrapper := CollectWrapper{}
 	err = json.Unmarshal(buf, &wrapper)
 	if err != nil {
