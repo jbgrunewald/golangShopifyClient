@@ -27,11 +27,11 @@ type Webhook struct {
 }
 
 type WebhookWrapper struct {
-	Webhook Webhook `json:"webhook"`
+	Webhook *Webhook `json:"webhook"`
 }
 
 func (w WebhookWrapper) GetResourceName() string {
-	return "webhook"
+	return "webhooks"
 }
 
 func (w WebhookWrapper) BuildCreateUrl(request Request) string {
@@ -74,10 +74,11 @@ func (w WebHookRequestOptions) UrlOptionsString() (queryParams string, err error
 	return
 }
 
-func (r *RestAdminClient) WebhookCreate(context ShopifyContext, resource Webhook) (result Webhook, err error) {
-	var wrapper = &WebhookWrapper{}
-	err = r.Create(context, wrapper)
-	result = wrapper.Webhook
+func (r *RestAdminClient) WebhookCreate(context ShopifyContext, request Webhook) (result *Webhook, err error) {
+	var returnWrapper = new(WebhookWrapper)
+	requestWrapper := WebhookWrapper{Webhook: &request}
+	err = r.Create(context, returnWrapper, requestWrapper)
+	result = returnWrapper.Webhook
 
 	return
 }
@@ -88,7 +89,7 @@ func (r *RestAdminClient) WebhookDelete(context ShopifyContext, id int) (err err
 		Method:  "DELETE",
 	}
 	request.Url = BuildIdUrl(request, "webhooks", id)
-	r.logger.Printf("requesting to delete webhook with id %s", id)
+	r.Logger.Printf("requesting to delete webhook with id %s", id)
 
 	_, err = r.Request(request)
 	if err != nil {

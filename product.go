@@ -76,11 +76,11 @@ type ProductRequestOptions struct {
 func (c *RestAdminClient) ProductList(details ShopifyContext, options ProductRequestOptions) (products []Product, err error) {
 	v, err := query.Values(options)
 	if err != nil {
-		c.logger.Println("there's an issue setting up the query params")
+		c.Logger.Println("there's an issue setting up the query params")
 		return
 	}
 	requestUrl := "https://" + details.ShopName + "/admin/products.json?" + v.Encode()
-	c.logger.Println(requestUrl)
+	c.Logger.Println(requestUrl)
 
 	req, err := http.NewRequest("GET", requestUrl, nil)
 	if err != nil {
@@ -89,13 +89,13 @@ func (c *RestAdminClient) ProductList(details ShopifyContext, options ProductReq
 
 	req.Header.Add("X-Shopify-Access-Token", details.AccessToken)
 
-	resp, err := c.http.Do(req)
+	resp, err := c.Http.Do(req)
 	if err != nil {
 		return
 	}
 
 	buf, _ := ioutil.ReadAll(resp.Body)
-	c.logger.Println("This is the response for the products: ", string(buf))
+	c.Logger.Println("This is the response for the products: ", string(buf))
 	wrapper := ProductWrapper{}
 	err = json.Unmarshal(buf, &wrapper)
 	if err != nil {

@@ -52,8 +52,8 @@ type Getter interface {
 }
 
 type RestAdminClient struct {
-	http    *http.Client
-	logger  *log.Logger
+	Http    *http.Client
+	Logger  *log.Logger
 	Version ApiVersion
 }
 
@@ -61,8 +61,6 @@ type ShopifyContext struct {
 	ShopName    string
 	AccessToken string
 	Ctx         context.Context
-	ApiKey      string
-	Password    string
 }
 
 type Request struct {
@@ -77,7 +75,7 @@ type Request struct {
 func (r *RestAdminClient) Request(request Request) (result io.Reader, err error) {
 	req, err := http.NewRequestWithContext(request.Context.Ctx, request.Method, request.Url, bytes.NewBuffer(request.Body))
 	if err != nil {
-		err = errors.WithMessagef(err, "unable to create request with input %s", request)
+		err = errors.WithMessagef(err, "unable to create request with input %+v", request)
 		return
 	}
 
@@ -88,7 +86,7 @@ func (r *RestAdminClient) Request(request Request) (result io.Reader, err error)
 		req.Header.Set(k, v)
 	}
 
-	resp, err := r.http.Do(req)
+	resp, err := r.Http.Do(req)
 	if err != nil {
 		err = errors.WithMessagef(err, "request failed %s", request)
 		return
@@ -117,7 +115,7 @@ func (r *RestAdminClient) List(context ShopifyContext, options QueryParamStringe
 		return
 	}
 	request.Url = BuildSimpleUrl(request, resource.GetResourceName()) + "?" + optionString
-	r.logger.Printf("sending request for the %s with url %s", resource.GetResourceName(), request.Url)
+	r.Logger.Printf("sending request for the %s with url %s", resource.GetResourceName(), request.Url)
 
 	buf, err := r.Request(request)
 
@@ -152,23 +150,26 @@ func (r *RestAdminClient) Get(context ShopifyContext, resource Getter) (err erro
 	return
 }
 
-func (r *RestAdminClient) Create(context ShopifyContext, resource Creator) (err error) {
+func (r *RestAdminClient) Create(context ShopifyContext, returnResource Creator, originalResource Creator) (err error) {
 	var request = Request{
 		Context: context,
 		Method:  "POST",
 		Version: r.Version,
 	}
-	request.Url = resource.BuildCreateUrl(request)
-
-	r.logger.Printf("making request to create %s with url %s", resource.GetResourceName(), request.Url)
-
-	buf, err := r.Request(request)
-
-	decoder := json.NewDecoder(buf)
-	err = decoder.Decode(resource)
+	request.Body, err = json.Marshal(originalResource)
 	if err != nil {
+		err = errors.WithMessage(err, "failure while marshaling the request data")
 		return
 	}
+	request.Url = returnResource.BuildCreateUrl(request)
+	buf, err := r.Request(request)
+	if err != nil {
+		err = errors.WithMessage(err, "there was error while making the request")
+		return
+	}
+
+	decoder := json.NewDecoder(buf)
+	err = decoder.Decode(&returnResource)
 
 	return
 }

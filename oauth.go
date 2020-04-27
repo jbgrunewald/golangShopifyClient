@@ -26,7 +26,7 @@ func (c *RestAdminClient) OAuthRequest(details ShopifyContext, request OAuthRequ
 		return
 	}
 
-	resp, err := c.http.Post(accessTokenRequestUrl, "application/json", bytes.NewBuffer(requestStr))
+	resp, err := c.Http.Post(accessTokenRequestUrl, "application/json", bytes.NewBuffer(requestStr))
 	if err != nil {
 		return
 	}

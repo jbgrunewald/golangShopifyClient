@@ -38,7 +38,7 @@ type RecurringApplicationChargesWrapper struct {
 func (c *RestAdminClient) RecurringApplicationChargeCreate(details ShopifyContext, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
 	requestUrl := "https://" + details.ShopName + "/admin/recurring_application_charges.json"
 
-	c.logger.Printf("Making the recurring application charge request for shop %s using URL %s\n", details.ShopName, requestUrl)
+	c.Logger.Printf("Making the recurring application charge request for shop %s using URL %s\n", details.ShopName, requestUrl)
 
 	requestStr, err := json.Marshal(RecurringApplicationChargeWrapper{request})
 	if err != nil {
@@ -55,26 +55,26 @@ func (c *RestAdminClient) RecurringApplicationChargeCreate(details ShopifyContex
 	req.Header.Add("X-Shopify-Access-Token", details.AccessToken)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := c.http.Do(req)
+	resp, err := c.Http.Do(req)
 	defer resp.Body.Close()
 	if err != nil {
 		return
 	}
 
 	if resp.StatusCode != 201 {
-		c.logger.Println("The billing request response status code is: ", resp.StatusCode)
+		c.Logger.Println("The billing request response status code is: ", resp.StatusCode)
 		return result, errors.New("The response from the server was not the expected status code")
 	}
 
 	buf, _ := ioutil.ReadAll(resp.Body)
-	c.logger.Println("The response for the recurring billing request is: ", string(buf))
+	c.Logger.Println("The response for the recurring billing request is: ", string(buf))
 	wrapper := RecurringApplicationChargeWrapper{}
 	err = json.Unmarshal(buf, &wrapper)
 	if err != nil {
-		c.logger.Println("Error unmarshaling the billing response", err.Error())
+		c.Logger.Println("Error unmarshaling the billing response", err.Error())
 	}
 
-	c.logger.Println("The result of the unmarshaling: ", wrapper)
+	c.Logger.Println("The result of the unmarshaling: ", wrapper)
 	result = wrapper.RecurringApplicationCharges
 
 	return
@@ -88,7 +88,7 @@ func (c *RestAdminClient) RecurringApplicationChargeActivate(details ShopifyCont
 
 	requestUrl := "https://" + details.ShopName + "/admin/recurring_application_charges/" + strconv.Itoa(request.Id) + "/activate.json"
 
-	c.logger.Printf("Requesting to activate recurring application charge with id %s for shop %s using URL %s\n", strconv.Itoa(request.Id), details.ShopName, requestUrl)
+	c.Logger.Printf("Requesting to activate recurring application charge with id %s for shop %s using URL %s\n", strconv.Itoa(request.Id), details.ShopName, requestUrl)
 
 	requestStr, err := json.Marshal(RecurringApplicationChargeWrapper{request})
 	if err != nil {
@@ -104,14 +104,14 @@ func (c *RestAdminClient) RecurringApplicationChargeActivate(details ShopifyCont
 	req.Header.Add("X-Shopify-Access-Token", details.AccessToken)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := c.http.Do(req)
+	resp, err := c.Http.Do(req)
 	defer resp.Body.Close()
 	if err != nil {
 		return
 	}
 
 	buf, _ := ioutil.ReadAll(resp.Body)
-	c.logger.Println("This is the response recieved from activating the billing: ", string(buf))
+	c.Logger.Println("This is the response recieved from activating the billing: ", string(buf))
 	wrapper := RecurringApplicationChargeWrapper{}
 	err = json.Unmarshal(buf, &wrapper)
 	if err != nil {
@@ -131,11 +131,11 @@ func (c *RestAdminClient) RecurringApplicationChargeActivate(details ShopifyCont
 func (c *RestAdminClient) RecurringApplicationChargeList(details ShopifyContext, options RecurringApplicationChargeOptons) (charges []RecurringApplicationCharge, err error) {
 	v, err := query.Values(options)
 	if err != nil {
-		c.logger.Println("there's an issue setting up the query params while request the recurring application charges")
+		c.Logger.Println("there's an issue setting up the query params while request the recurring application charges")
 		return
 	}
 	requestUrl := "https://" + details.ShopName + "/admin/" + c.Version.String() + "recurring_application_charges.json?" + v.Encode()
-	c.logger.Println(requestUrl)
+	c.Logger.Println(requestUrl)
 
 	req, err := http.NewRequest("GET", requestUrl, nil)
 	if err != nil {
@@ -144,13 +144,13 @@ func (c *RestAdminClient) RecurringApplicationChargeList(details ShopifyContext,
 
 	req.Header.Add("X-Shopify-Access-Token", details.AccessToken)
 
-	resp, err := c.http.Do(req)
+	resp, err := c.Http.Do(req)
 	if err != nil {
 		return
 	}
 
 	buf, _ := ioutil.ReadAll(resp.Body)
-	c.logger.Println("This is the response for the recurring application charge: ", string(buf))
+	c.Logger.Println("This is the response for the recurring application charge: ", string(buf))
 	wrapper := RecurringApplicationChargesWrapper{}
 	err = json.Unmarshal(buf, &wrapper)
 	if err != nil {
