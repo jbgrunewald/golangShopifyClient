@@ -72,7 +72,7 @@ type Request struct {
 	Version ApiVersion
 }
 
-func (r *RestAdminClient) Request(request Request) (result io.Reader, err error) {
+func (r *RestAdminClient) Request(request Request) (result io.ReadCloser, err error) {
 	req, err := http.NewRequestWithContext(request.Context.Ctx, request.Method, request.Url, bytes.NewBuffer(request.Body))
 	if err != nil {
 		err = errors.WithMessagef(err, "unable to create request with input %+v", request)
@@ -163,6 +163,7 @@ func (r *RestAdminClient) Create(context ShopifyContext, returnResource Creator,
 	}
 	request.Url = returnResource.BuildCreateUrl(request)
 	buf, err := r.Request(request)
+	defer buf.Close()
 	if err != nil {
 		err = errors.WithMessage(err, "there was error while making the request")
 		return
