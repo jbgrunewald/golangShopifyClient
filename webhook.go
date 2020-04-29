@@ -66,7 +66,7 @@ type WebHookRequestOptions struct {
 func (w WebHookRequestOptions) UrlOptionsString() (queryParams string, err error) {
 	values, err := query.Values(w)
 	if err != nil {
-		err = errors.WithMessagef(err, "unable to encode options as query param", w)
+		err = errors.WithMessagef(err, "unable to encode options as query param %v", w)
 		return
 	}
 
@@ -89,11 +89,11 @@ func (r *RestAdminClient) WebhookDelete(context ShopifyContext, id int) (err err
 		Method:  "DELETE",
 	}
 	request.Url = BuildIdUrl(request, "webhooks", id)
-	r.Logger.Printf("requesting to delete webhook with id %s", id)
+	r.Logger.Printf("requesting to delete webhook with id %v", id)
 
 	_, err = r.Request(request)
 	if err != nil {
-		err = errors.WithMessagef(err, "unable to delete webhook %s", id)
+		err = errors.WithMessagef(err, "unable to delete webhook %v", id)
 	}
 
 	return
