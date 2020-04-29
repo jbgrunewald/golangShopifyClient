@@ -115,7 +115,6 @@ func (r *RestAdminClient) List(context ShopifyContext, options QueryParamStringe
 		return
 	}
 	request.Url = BuildSimpleUrl(request, resource.GetResourceName()) + "?" + optionString
-	r.Logger.Printf("sending request for the %s with url %s", resource.GetResourceName(), request.Url)
 
 	buf, err := r.Request(request)
 
@@ -171,6 +170,23 @@ func (r *RestAdminClient) Create(context ShopifyContext, returnResource Creator,
 
 	decoder := json.NewDecoder(buf)
 	err = decoder.Decode(&returnResource)
+
+	return
+}
+
+func (r *RestAdminClient) Delete(context ShopifyContext, resource string, id int) (err error) {
+	var request = Request{
+		Context: context,
+		Method:  "DELETE",
+	}
+	request.Url = BuildIdUrl(request, resource, id)
+
+	buf, err := r.Request(request)
+	_, _ = ioutil.ReadAll(buf)
+	defer buf.Close()
+	if err != nil {
+		err = errors.WithMessagef(err, "unable to delete webhook %v", id)
+	}
 
 	return
 }

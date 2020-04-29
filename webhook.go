@@ -84,14 +84,7 @@ func (r *RestAdminClient) WebhookCreate(context ShopifyContext, request Webhook)
 }
 
 func (r *RestAdminClient) WebhookDelete(context ShopifyContext, id int) (err error) {
-	var request = Request{
-		Context: context,
-		Method:  "DELETE",
-	}
-	request.Url = BuildIdUrl(request, "webhooks", id)
-	r.Logger.Printf("requesting to delete webhook with id %v", id)
-
-	_, err = r.Request(request)
+	err = r.Delete(context, "webhooks", id)
 	if err != nil {
 		err = errors.WithMessagef(err, "unable to delete webhook %v", id)
 	}

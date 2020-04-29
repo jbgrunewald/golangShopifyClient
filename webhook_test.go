@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -31,7 +30,8 @@ var listResponse = WebhooksWrapper{
 func TestWebhookList(t *testing.T) {
 	listResponse.Webhooks = append(listResponse.Webhooks, *createResponse.Webhook)
 	server := httptest.NewTLSServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		if req.URL.Path == "/admin/api/2019-07/webhooks.json" && req.Method == "GET" && req.URL.RawQuery == "limit=65&since_id=0" {
+		authHeader := req.Header.Get("X-Shopify-Access-Token")
+		if req.URL.Path == "/admin/api/2019-07/webhooks.json" && req.Method == "GET" && req.URL.RawQuery == "limit=65&since_id=0" && authHeader == "thisisatoken" {
 			response, _ := json.Marshal(listResponse)
 			_, _ = rw.Write(response)
 			return
@@ -74,7 +74,8 @@ func TestWebhookList(t *testing.T) {
 
 func TestWebhookCreate(t *testing.T) {
 	server := httptest.NewTLSServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		if req.URL.Path == "/admin/api/2019-07/webhooks.json" && req.Method == "POST" {
+		authHeader := req.Header.Get("X-Shopify-Access-Token")
+		if req.URL.Path == "/admin/api/2019-07/webhooks.json" && req.Method == "POST" && authHeader == "thisisatoken" {
 			response, _ := json.Marshal(createResponse)
 			_, _ = rw.Write(response)
 			return
@@ -104,7 +105,6 @@ func TestWebhookCreate(t *testing.T) {
 		Format:  "json",
 	}
 	result, err := client.WebhookCreate(requestContext, webhook)
-	fmt.Printf("%+v\n", result)
 	if err != nil {
 		t.Error(err)
 	}
@@ -115,5 +115,38 @@ func TestWebhookCreate(t *testing.T) {
 	expected, _ := json.Marshal(createResponse.Webhook)
 	if bytes.Compare(resultStringed, expected) != 0 {
 		t.Error()
+	}
+}
+
+func TestWebhookDelete(t *testing.T) {
+	server := httptest.NewTLSServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		authHeader := req.Header.Get("X-Shopify-Access-Token")
+		if req.URL.Path == "/admin/api/2019-07/webhooks/12345.json" && req.Method == "DELETE" && authHeader == "thisisatoken" {
+			response, _ := json.Marshal(createResponse)
+			_, _ = rw.Write(response)
+			return
+		}
+
+		rw.Write([]byte("something went wrong"))
+	}))
+	defer server.Close()
+
+	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
+	client := RestAdminClient{
+		Http:    server.Client(),
+		Logger:  logger,
+		Version: VERSION_2019_07,
+	}
+
+	serverUrl, _ := url.Parse(server.URL)
+	requestContext := ShopifyContext{
+		AccessToken: "thisisatoken",
+		ShopName:    serverUrl.Host,
+		Ctx:         context.Background(),
+	}
+
+	err := client.WebhookDelete(requestContext, 12345)
+	if err != nil {
+		t.Error(err)
 	}
 }
