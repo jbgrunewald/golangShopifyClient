@@ -92,9 +92,9 @@ func (r *RestAdminClient) WebhookDelete(context ShopifyContext, id int) (err err
 	return
 }
 
-func (r *RestAdminClient) WebhookList(context ShopifyContext, options WebHookRequestOptions) (results []Webhook, err error) {
+func (r *RestAdminClient) WebhookList(context ShopifyContext, options WebHookRequestOptions) (results []Webhook, next string, err error) {
 	var wrapper = &WebhooksWrapper{}
-	err = r.List(context, options, wrapper)
+	next, err = r.List(context, options, wrapper)
 	results = wrapper.Webhooks
 
 	//TODO figure out a way to generalize the autopaginate logic

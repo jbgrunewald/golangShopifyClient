@@ -58,9 +58,10 @@ type RestAdminClient struct {
 }
 
 type ShopifyContext struct {
-	ShopName    string
-	AccessToken string
-	Ctx         context.Context
+	ShopName     string
+	AccessToken  string
+	Ctx          context.Context
+	CursorUrl    string
 }
 
 type Request struct {
@@ -72,7 +73,7 @@ type Request struct {
 	Version ApiVersion
 }
 
-func (r *RestAdminClient) Request(request Request) (result io.ReadCloser, err error) {
+func (r *RestAdminClient) Request(request Request) (result io.ReadCloser, next string, err error) {
 	req, err := http.NewRequestWithContext(request.Context.Ctx, request.Method, request.Url, bytes.NewBuffer(request.Body))
 	if err != nil {
 		err = errors.WithMessagef(err, "unable to create request with input %+v", request)
@@ -88,9 +89,10 @@ func (r *RestAdminClient) Request(request Request) (result io.ReadCloser, err er
 
 	resp, err := r.Http.Do(req)
 	if err != nil {
-		err = errors.WithMessagef(err, "request failed %s", request)
+		err = errors.WithMessagef(err, "request failed %v", request)
 		return
 	}
+	next = ExtractNextCursorUrl(resp.Header.Get("Link"))
 
 	result = resp.Body
 
@@ -104,7 +106,7 @@ func (r *RestAdminClient) Request(request Request) (result io.ReadCloser, err er
 	return
 }
 
-func (r *RestAdminClient) List(context ShopifyContext, options QueryParamStringer, resource Lister) (err error) {
+func (r *RestAdminClient) List(context ShopifyContext, options QueryParamStringer, resource Lister) (next string, err error) {
 	var request = Request{
 		Context: context,
 		Method:  "GET",
@@ -114,9 +116,13 @@ func (r *RestAdminClient) List(context ShopifyContext, options QueryParamStringe
 	if err != nil {
 		return
 	}
-	request.Url = BuildSimpleUrl(request, resource.GetResourceName()) + "?" + optionString
+	if context.CursorUrl != "" {
+		request.Url = context.CursorUrl
+	} else {
+		request.Url = BuildSimpleUrl(request, resource.GetResourceName()) + "?" + optionString
+	}
 
-	buf, err := r.Request(request)
+	buf, next, err := r.Request(request)
 
 	decoder := json.NewDecoder(buf)
 	err = decoder.Decode(resource)
@@ -137,7 +143,7 @@ func (r *RestAdminClient) Get(context ShopifyContext, resource Getter) (err erro
 
 	request.Url = resource.BuildGetUrl(request)
 
-	buf, err := r.Request(request)
+	buf, _, err := r.Request(request)
 
 	decoder := json.NewDecoder(buf)
 	err = decoder.Decode(resource)
@@ -161,7 +167,7 @@ func (r *RestAdminClient) Create(context ShopifyContext, returnResource Creator,
 		return
 	}
 	request.Url = returnResource.BuildCreateUrl(request)
-	buf, err := r.Request(request)
+	buf, _, err := r.Request(request)
 	defer buf.Close()
 	if err != nil {
 		err = errors.WithMessage(err, "there was error while making the request")
@@ -181,7 +187,7 @@ func (r *RestAdminClient) Delete(context ShopifyContext, resource string, id int
 	}
 	request.Url = BuildIdUrl(request, resource, id)
 
-	buf, err := r.Request(request)
+	buf, _, err := r.Request(request)
 	_, _ = ioutil.ReadAll(buf)
 	defer buf.Close()
 	if err != nil {

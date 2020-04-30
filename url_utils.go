@@ -3,6 +3,18 @@ package shopify
 import "strings"
 
 /*
+Used to extract the cursor based url from the response header.
+*/
+func ExtractNextCursorUrl(header string) string {
+	headerSplit := strings.Split(header, " ")
+	next := headerSplit[0]
+	if next != "" {
+		return next[1 : len(headerSplit[0])-2]
+	}
+	return next
+}
+
+/*
 A helper for building the base url for a shopify request
 */
 func BuildBaseUrl(request Request) (url string) {
