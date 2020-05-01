@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/pkg/errors"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -62,6 +62,7 @@ type ShopifyContext struct {
 	AccessToken  string
 	Ctx          context.Context
 	CursorUrl    string
+	AutoPaginate bool
 }
 
 type Request struct {
@@ -73,7 +74,7 @@ type Request struct {
 	Version ApiVersion
 }
 
-func (r *RestAdminClient) Request(request Request) (result io.ReadCloser, next string, err error) {
+func (r *RestAdminClient) Request(request Request) (result []byte, next string, err error) {
 	req, err := http.NewRequestWithContext(request.Context.Ctx, request.Method, request.Url, bytes.NewBuffer(request.Body))
 	if err != nil {
 		err = errors.WithMessagef(err, "unable to create request with input %+v", request)
@@ -94,11 +95,14 @@ func (r *RestAdminClient) Request(request Request) (result io.ReadCloser, next s
 	}
 	next = ExtractNextCursorUrl(resp.Header.Get("Link"))
 
-	result = resp.Body
+	defer resp.Body.Close()
+	result, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		err = errors.WithMessage(err, "there was a problem was reading the body")
+	}
 
 	if resp.StatusCode >= 300 {
-		response, _ := ioutil.ReadAll(resp.Body)
-		err = errors.New(string(response))
+		err = errors.New(string(result))
 		err = errors.WithMessagef(err, "received %v response", resp.StatusCode)
 		return
 	}
@@ -124,11 +128,25 @@ func (r *RestAdminClient) List(context ShopifyContext, options QueryParamStringe
 
 	buf, next, err := r.Request(request)
 
-	decoder := json.NewDecoder(buf)
-	err = decoder.Decode(resource)
+	err = json.Unmarshal(buf, &resource)
 	if err != nil {
+		fmt.Println(string(buf))
+		err = errors.WithMessage(err, "error while unmarshalling list response")
 		return
+	}
 
+	if context.AutoPaginate {
+		if next != "" {
+			context.CursorUrl = next
+		} else {
+			return
+		}
+
+		_, err = r.List(context, options, resource)
+		if err != nil {
+			err = errors.WithMessage(err, "failure during pagination...aborting")
+			return
+		}
 	}
 
 	return
@@ -145,11 +163,10 @@ func (r *RestAdminClient) Get(context ShopifyContext, resource Getter) (err erro
 
 	buf, _, err := r.Request(request)
 
-	decoder := json.NewDecoder(buf)
-	err = decoder.Decode(resource)
+	err = json.Unmarshal(buf, &resource)
 	if err != nil {
+		err = errors.WithMessage(err, "error while unmarshalling get request")
 		return
-
 	}
 
 	return
@@ -168,14 +185,15 @@ func (r *RestAdminClient) Create(context ShopifyContext, returnResource Creator,
 	}
 	request.Url = returnResource.BuildCreateUrl(request)
 	buf, _, err := r.Request(request)
-	defer buf.Close()
 	if err != nil {
 		err = errors.WithMessage(err, "there was error while making the request")
 		return
 	}
 
-	decoder := json.NewDecoder(buf)
-	err = decoder.Decode(&returnResource)
+	err = json.Unmarshal(buf, &returnResource)
+	if err != nil {
+		err = errors.WithMessage(err, "error unmarshaling request")
+	}
 
 	return
 }
@@ -187,9 +205,7 @@ func (r *RestAdminClient) Delete(context ShopifyContext, resource string, id int
 	}
 	request.Url = BuildIdUrl(request, resource, id)
 
-	buf, _, err := r.Request(request)
-	_, _ = ioutil.ReadAll(buf)
-	defer buf.Close()
+	_, _, err = r.Request(request)
 	if err != nil {
 		err = errors.WithMessagef(err, "unable to delete webhook %v", id)
 	}

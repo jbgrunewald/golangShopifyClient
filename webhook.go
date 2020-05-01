@@ -1,6 +1,8 @@
 package shopify
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/google/go-querystring/query"
 	"github.com/pkg/errors"
 )
@@ -38,13 +40,23 @@ func (w WebhookWrapper) BuildCreateUrl(request Request) string {
 	return BuildSimpleUrl(request, w.GetResourceName())
 }
 
-type WebhooksWrapper struct {
+type Webhooks struct {
 	Webhooks []Webhook `json:"webhooks"`
-	Errors   string    `json:"errors"`
 }
 
-func (w WebhooksWrapper) GetLastId() int {
-	return w.Webhooks[len(w.Webhooks)-1].Id
+type WebhooksWrapper struct {
+	Webhooks []Webhook
+}
+
+func (w *WebhooksWrapper) UnmarshalJSON(data []byte) (err error) {
+	var wrapper Webhooks
+	if err = json.Unmarshal(data, &wrapper); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	w.Webhooks = append(w.Webhooks, wrapper.Webhooks...)
+	return
 }
 
 func (w WebhooksWrapper) GetResourceName() string {
@@ -96,24 +108,5 @@ func (r *RestAdminClient) WebhookList(context ShopifyContext, options WebHookReq
 	var wrapper = &WebhooksWrapper{}
 	next, err = r.List(context, options, wrapper)
 	results = wrapper.Webhooks
-
-	//TODO figure out a way to generalize the autopaginate logic
-	//if context.AutoPaginate {
-	//	//TODO add support for curser based pagination
-	//	if len(results) < options.Limit || (options.Limit == 0 && len(results) < 50) {
-	//		return
-	//	}
-	//
-	//	options.SinceId = results[len(results)-1].Id
-	//	nextResult, err := r.WebhookList(context, options)
-	//	if err != nil {
-	//		err = errors.WithMessage(err, "failure during pagination...aborting")
-	//		results = []Webhook{}
-	//		return
-	//	}
-	//	results = append(results, nextResult...)
-	//	return
-	//}
-
 	return
 }
