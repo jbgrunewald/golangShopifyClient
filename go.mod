@@ -1,4 +1,4 @@
-module golangShopifyClient
+module github.com/jbgrunewald/golangShopifyClient
 
 go 1.14
 
