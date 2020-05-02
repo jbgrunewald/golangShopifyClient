@@ -35,7 +35,7 @@ type RecurringApplicationChargesWrapper struct {
 	RecurringApplicationCharges []RecurringApplicationCharge `json:"recurring_application_charges,omitempty"`
 }
 
-func (c *RestAdminClient) RecurringApplicationChargeCreate(details ShopifyContext, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
+func (c *RestAdminClient) RecurringApplicationChargeCreate(details Ctx, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
 	requestUrl := "https://" + details.ShopName + "/admin/recurring_application_charges.json"
 
 	c.Logger.Printf("Making the recurring application charge request for shop %s using URL %s\n", details.ShopName, requestUrl)
@@ -80,7 +80,7 @@ func (c *RestAdminClient) RecurringApplicationChargeCreate(details ShopifyContex
 	return
 }
 
-func (c *RestAdminClient) RecurringApplicationChargeActivate(details ShopifyContext, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
+func (c *RestAdminClient) RecurringApplicationChargeActivate(details Ctx, request RecurringApplicationCharge) (result RecurringApplicationCharge, err error) {
 	if details.AccessToken == "" || details.ShopName == "" {
 		err = errors.New("Missing the shop name or the access token from the details object inside the activate billing call.")
 		return
@@ -128,7 +128,7 @@ func (c *RestAdminClient) RecurringApplicationChargeActivate(details ShopifyCont
 	return
 }
 
-func (c *RestAdminClient) RecurringApplicationChargeList(details ShopifyContext, options RecurringApplicationChargeOptons) (charges []RecurringApplicationCharge, err error) {
+func (c *RestAdminClient) RecurringApplicationChargeList(details Ctx, options RecurringApplicationChargeOptons) (charges []RecurringApplicationCharge, err error) {
 	v, err := query.Values(options)
 	if err != nil {
 		c.Logger.Println("there's an issue setting up the query params while request the recurring application charges")

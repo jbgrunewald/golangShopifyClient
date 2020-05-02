@@ -19,9 +19,9 @@ type Client interface {
 
 	ShopGet(Request) (Shop, error)
 
-	WebhookCreate(ShopifyContext, Webhook) (Webhook, error)
-	WebhookDelete(ShopifyContext, int) error
-	WebhookList(ShopifyContext, WebHookRequestOptions) ([]Webhook, error)
+	WebhookCreate(Ctx, Webhook) (Webhook, error)
+	WebhookDelete(Ctx, int) error
+	WebhookList(Ctx, WebHookRequestOptions) ([]Webhook, error)
 
 	ProductList(Request, ProductRequestOptions) ([]Product, error)
 
@@ -57,7 +57,7 @@ type RestAdminClient struct {
 	Version ApiVersion
 }
 
-type ShopifyContext struct {
+type Ctx struct {
 	ShopName     string
 	AccessToken  string
 	Ctx          context.Context
@@ -66,7 +66,7 @@ type ShopifyContext struct {
 }
 
 type Request struct {
-	Context ShopifyContext
+	Context Ctx
 	Method  string
 	Url     string
 	Headers map[string]string
@@ -110,7 +110,7 @@ func (r *RestAdminClient) Request(request Request) (result []byte, next string, 
 	return
 }
 
-func (r *RestAdminClient) List(context ShopifyContext, options QueryParamStringer, resource Lister) (next string, err error) {
+func (r *RestAdminClient) List(context Ctx, options QueryParamStringer, resource Lister) (next string, err error) {
 	var request = Request{
 		Context: context,
 		Method:  "GET",
@@ -152,7 +152,7 @@ func (r *RestAdminClient) List(context ShopifyContext, options QueryParamStringe
 	return
 }
 
-func (r *RestAdminClient) Get(context ShopifyContext, resource Getter) (err error) {
+func (r *RestAdminClient) Get(context Ctx, resource Getter) (err error) {
 	var request = Request{
 		Context: context,
 		Method:  "GET",
@@ -172,7 +172,7 @@ func (r *RestAdminClient) Get(context ShopifyContext, resource Getter) (err erro
 	return
 }
 
-func (r *RestAdminClient) Create(context ShopifyContext, returnResource Creator, originalResource Creator) (err error) {
+func (r *RestAdminClient) Create(context Ctx, returnResource Creator, originalResource Creator) (err error) {
 	var request = Request{
 		Context: context,
 		Method:  "POST",
@@ -198,7 +198,7 @@ func (r *RestAdminClient) Create(context ShopifyContext, returnResource Creator,
 	return
 }
 
-func (r *RestAdminClient) Delete(context ShopifyContext, resource string, id int) (err error) {
+func (r *RestAdminClient) Delete(context Ctx, resource string, id int) (err error) {
 	var request = Request{
 		Context: context,
 		Method:  "DELETE",

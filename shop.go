@@ -67,7 +67,7 @@ func (s ShopWrapper) BuildGetUrl(request Request) string {
 	return BuildSimpleUrl(request, s.GetResourceName())
 }
 
-func (c *RestAdminClient) ShopGet(context ShopifyContext) (result Shop, err error) {
+func (c *RestAdminClient) ShopGet(context Ctx) (result Shop, err error) {
 	wrapper := &ShopWrapper{}
 	err = c.Get(context, wrapper)
 	result = wrapper.Shop

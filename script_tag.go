@@ -21,7 +21,7 @@ type ScriptTageWrapper struct {
 	ScriptTag ScriptTag `json:"script_tag"`
 }
 
-func (c *RestAdminClient) ScriptTagCreate(details ShopifyContext, request ScriptTag) (result ScriptTag, err error) {
+func (c *RestAdminClient) ScriptTagCreate(details Ctx, request ScriptTag) (result ScriptTag, err error) {
 	requestUrl := "https://" + details.ShopName + "/admin/" + c.Version.String() + "script_tags.json"
 
 	c.Logger.Printf("Making the script tag request for shop %s using URL %s\n", details.ShopName, requestUrl)

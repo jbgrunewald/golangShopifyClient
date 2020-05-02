@@ -73,7 +73,7 @@ type ProductRequestOptions struct {
 	All                   bool
 }
 
-func (c *RestAdminClient) ProductList(details ShopifyContext, options ProductRequestOptions) (products []Product, err error) {
+func (c *RestAdminClient) ProductList(details Ctx, options ProductRequestOptions) (products []Product, err error) {
 	v, err := query.Values(options)
 	if err != nil {
 		c.Logger.Println("there's an issue setting up the query params")

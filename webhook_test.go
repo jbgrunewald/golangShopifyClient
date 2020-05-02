@@ -49,7 +49,7 @@ func TestWebhookList(t *testing.T) {
 	}
 
 	serverUrl, _ := url.Parse(server.URL)
-	requestContext := ShopifyContext{
+	requestContext := Ctx{
 		AccessToken: "thisisatoken",
 		ShopName:    serverUrl.Host,
 		Ctx:         context.Background(),
@@ -104,7 +104,7 @@ func TestWebhookListAutoPaginate(t *testing.T) {
 	}
 
 	serverUrl, _ := url.Parse(server.URL)
-	requestContext := ShopifyContext{
+	requestContext := Ctx{
 		AccessToken:  "thisisatoken",
 		ShopName:     serverUrl.Host,
 		Ctx:          context.Background(),
@@ -154,7 +154,7 @@ func TestWebhookListWithCursorUrl(t *testing.T) {
 	}
 
 	serverUrl, _ := url.Parse(server.URL)
-	requestContext := ShopifyContext{
+	requestContext := Ctx{
 		AccessToken: "thisisatoken",
 		ShopName:    serverUrl.Host,
 		Ctx:         context.Background(),
@@ -200,7 +200,7 @@ func TestWebhookCreate(t *testing.T) {
 	}
 
 	serverUrl, _ := url.Parse(server.URL)
-	requestContext := ShopifyContext{
+	requestContext := Ctx{
 		AccessToken: "thisisatoken",
 		ShopName:    serverUrl.Host,
 		Ctx:         context.Background(),
@@ -246,7 +246,7 @@ func TestWebhookDelete(t *testing.T) {
 	}
 
 	serverUrl, _ := url.Parse(server.URL)
-	requestContext := ShopifyContext{
+	requestContext := Ctx{
 		AccessToken: "thisisatoken",
 		ShopName:    serverUrl.Host,
 		Ctx:         context.Background(),

@@ -86,7 +86,7 @@ func (w WebHookRequestOptions) UrlOptionsString() (queryParams string, err error
 	return
 }
 
-func (r *RestAdminClient) WebhookCreate(context ShopifyContext, request Webhook) (result *Webhook, err error) {
+func (r *RestAdminClient) WebhookCreate(context Ctx, request Webhook) (result *Webhook, err error) {
 	var returnWrapper = new(WebhookWrapper)
 	requestWrapper := WebhookWrapper{Webhook: &request}
 	err = r.Create(context, returnWrapper, requestWrapper)
@@ -95,7 +95,7 @@ func (r *RestAdminClient) WebhookCreate(context ShopifyContext, request Webhook)
 	return
 }
 
-func (r *RestAdminClient) WebhookDelete(context ShopifyContext, id int) (err error) {
+func (r *RestAdminClient) WebhookDelete(context Ctx, id int) (err error) {
 	err = r.Delete(context, "webhooks", id)
 	if err != nil {
 		err = errors.WithMessagef(err, "unable to delete webhook %v", id)
@@ -104,7 +104,7 @@ func (r *RestAdminClient) WebhookDelete(context ShopifyContext, id int) (err err
 	return
 }
 
-func (r *RestAdminClient) WebhookList(context ShopifyContext, options WebHookRequestOptions) (results []Webhook, next string, err error) {
+func (r *RestAdminClient) WebhookList(context Ctx, options WebHookRequestOptions) (results []Webhook, next string, err error) {
 	var wrapper = &WebhooksWrapper{}
 	next, err = r.List(context, options, wrapper)
 	results = wrapper.Webhooks
